@@ -87,3 +87,26 @@ if(NOT catch2_POPULATED)
 endif()
 
 # Add more CMake libraries here ...
+
+# Database library
+FetchContent_Declare(
+        sqlite-modern-cpp
+        GIT_REPOSITORY https://github.com/SqliteModernCpp/sqlite_modern_cpp.git
+        GIT_TAG a0f96c10f04d96ccea1b8a49d5998c96e7887bf4
+)
+
+# Adds sqlite_modern_cpp.
+FetchContent_GetProperties(sqlite-modern-cpp)
+if (NOT sqlite-modern-cpp_POPULATED)
+    FetchContent_Populate(sqlite-modern-cpp)
+    add_library(sqlite-modern-cpp INTERFACE)
+    target_include_directories(sqlite-modern-cpp INTERFACE ${sqlite-modern-cpp_SOURCE_DIR}/hdr)
+endif ()
+
+# Docs only available if this is the main app
+find_package(Doxygen)
+if(Doxygen_FOUND)
+    add_subdirectory(docs)
+else()
+    message(STATUS "Doxygen not found, not building docs")
+endif()
