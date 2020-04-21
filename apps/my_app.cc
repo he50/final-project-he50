@@ -3,99 +3,90 @@
 #include "my_app.h"
 
 #include <cinder/app/App.h>
-
+#include <cinder/gl/gl.h>
+#include "cinder/app/RendererGl.h"
 #include <Box2D/Box2D.h>
+#include <vector>
+// EXAMPLE FROM:
+// https://github.com/cinder/Cinder/blob/master/blocks/Box2D/
+// templates/Basic%20Box2D/src/_TBOX_PREFIX_App.cpp
 
 
 namespace myapp {
 
 using cinder::app::KeyEvent;
 
-MyApp::MyApp() { }
+using namespace ci;
+using namespace ci::app;
 
-// EXAMPLE TAKEN FROM ::
-// https://github.com/behdad/box2d/blob/master/Box2D/HelloWorld/HelloWorld.cpp
-// This is a simple example of building and running a simulation
-// using Box2D. Here we create a large ground box and a small dynamic
-// box.
-// There are no graphics for this example. Box2D is meant to be used
-// with your rendering engine in your game engine.
+b2World	*mWorld;
+const float BOX_SIZE = 10;
+std::vector<b2Body*> mBoxes;
+
+MyApp::MyApp() {
+}
+
 void MyApp::setup() {
-  // Define the gravity vector.
-  b2Vec2 gravity(0.0f, -10.0f);
+  b2Vec2 gravity( 0.0f, -10.0f );
+  mWorld = new b2World( gravity );
 
-  // Construct a world object, which will hold and simulate the rigid bodies.
-  b2World world(gravity);
-
-  // Define the ground body.
   b2BodyDef groundBodyDef;
-  groundBodyDef.position.Set(0.0f, -10.0f);
-
-  // Call the body factory which allocates memory for the ground body
-  // from a pool and creates the ground box shape (also from a pool).
-  // The body is also added to the world.
-  b2Body* groundBody = world.CreateBody(&groundBodyDef);
+  groundBodyDef.position.Set( 0.0f, getWindowHeight() );
+  b2Body* groundBody = mWorld->CreateBody( &groundBodyDef );
 
   // Define the ground box shape.
   b2PolygonShape groundBox;
 
   // The extents are the half-widths of the box.
-  groundBox.SetAsBox(50.0f, 10.0f);
+  groundBox.SetAsBox( getWindowWidth(), 10.0f );
 
   // Add the ground fixture to the ground body.
-  groundBody->CreateFixture(&groundBox, 0.0f);
-
-  // Define the dynamic body. We set its position and call the body factory.
-  b2BodyDef bodyDef;
-  bodyDef.type = b2_dynamicBody;
-  bodyDef.position.Set(0.0f, 4.0f);
-  b2Body* body = world.CreateBody(&bodyDef);
-
-  // Define another box shape for our dynamic body.
-  b2PolygonShape dynamicBox;
-  dynamicBox.SetAsBox(1.0f, 1.0f);
-
-  // Define the dynamic body fixture.
-  b2FixtureDef fixtureDef;
-  fixtureDef.shape = &dynamicBox;
-
-  // Set the box density to be non-zero, so it will be dynamic.
-  fixtureDef.density = 1.0f;
-
-  // Override the default friction.
-  fixtureDef.friction = 0.3f;
-
-  // Add the shape to the body.
-  body->CreateFixture(&fixtureDef);
-
-  // Prepare for simulation. Typically we use a time step of 1/60 of a
-  // second (60Hz) and 10 iterations. This provides a high quality simulation
-  // in most game scenarios.
-  float32 timeStep = 1.0f / 60.0f;
-  int32 velocityIterations = 6;
-  int32 positionIterations = 2;
-
-  // This is our little game loop.
-  for (int32 i = 0; i < 60; ++i)
-  {
-    // Instruct the world to perform a single step of simulation.
-    // It is generally best to keep the time step and iterations fixed.
-    world.Step(timeStep, velocityIterations, positionIterations);
-
-    // Now print the position and angle of the body.
-    b2Vec2 position = body->GetPosition();
-    float32 angle = body->GetAngle();
-
-    printf("%4.2f %4.2f %4.2f\n", position.x, position.y, angle);
-  }
-
-  // When the world destructor is called, all bodies and joints are freed. This can
-  // create orphaned pointers, so be careful about your world management.
+  groundBody->CreateFixture( &groundBox, 0.0f );
 }
 
-void MyApp::update() { }
+void MyApp::addBox(const vec2 &pos) {
+  b2BodyDef bodyDef;
+  bodyDef.type = b2_dynamicBody;
+  bodyDef.position.Set( pos.x, pos.y );
 
-void MyApp::draw() { }
+  b2Body *body = mWorld->CreateBody( &bodyDef );
+
+  b2PolygonShape dynamicBox;
+  dynamicBox.SetAsBox( BOX_SIZE, BOX_SIZE );
+
+  b2FixtureDef fixtureDef;
+  fixtureDef.shape = &dynamicBox;
+  fixtureDef.density = 1.0f;
+  fixtureDef.friction = 0.3f;
+  fixtureDef.restitution = 0.5f; // bounce
+
+  body->CreateFixture( &fixtureDef );
+  mBoxes.push_back( body );
+}
+
+void MyApp::update() {
+  for( int i = 0; i < 10; ++i )
+    mWorld->Step( 1 / 30.0f, 10, 10 );
+}
+
+void MyApp::draw() {
+  gl::clear();
+
+  gl::color( 1, 0.5f, 0.25f );
+  for( const auto &box : mBoxes ) {
+    gl::pushModelMatrix();
+    gl::translate( box->GetPosition().x, box->GetPosition().y );
+    gl::rotate( box->GetAngle() );
+
+    gl::drawSolidRect( Rectf( -1, -10, 1, 10 ) );
+
+    gl::popModelMatrix();
+  }
+}
+
+void MyApp::mouseDown(MouseEvent event) {
+  addBox(event.getPos());
+}
 
 void MyApp::keyDown(KeyEvent event) { }
 
