@@ -43,6 +43,8 @@ void MyApp::setup() {
 
   fire_texture_ = cinder::gl::Texture2d::create(
       loadImage(loadAsset("fire.png")));
+  player_texture_ = cinder::gl::Texture2d::create(
+      loadImage(loadAsset("player.png")));
 }
 
 void MyApp::AddMissile(const vec2 &pos) {
@@ -70,6 +72,20 @@ void MyApp::AddMissile(const vec2 &pos) {
   body->CreateFixture(&fixtureDef);
   body->SetUserData((void*)"missile");
   missiles_.push_back(body);
+}
+
+void MyApp::AddPlayer() {
+  mylibrary::Player player = mylibrary::Player();
+  player.SetBody(world_, player_x_, player_y_);
+
+  gl::pushModelMatrix();
+  gl::translate(player.GetBody()->GetPosition().x, player.GetBody()->GetPosition().y);
+  gl::rotate(player.GetBody()->GetAngle());
+
+  cinder::Rectf rectangle = Rectf( -20, -20, 20, 20 );
+  cinder::gl::draw(player_texture_, rectangle);
+
+  gl::popModelMatrix();
 }
 
 
