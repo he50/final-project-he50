@@ -116,9 +116,52 @@ void MyApp::AddShield() {
 }
 
 void MyApp::update() {
-  for( int i = 0; i < 10; ++i )
-    world_->Step( 1 / 30.0f, 10, 10 );
+  for (int i = 0; i < 10; ++i) {
+    world_->Step(1 / 30.0f, 10, 10);
+    for (b2Contact* contact = world_->GetContactList(); contact; contact = contact->GetNext()) {
+
+      if (contact->IsTouching()) {
+
+        if (contact->GetFixtureA()->GetBody()->GetUserData() == "invader" && contact->GetFixtureB()->GetBody()->GetUserData() == "missile") {
+          world_->DestroyBody(contact->GetFixtureA()->GetBody());
+          world_->DestroyBody(contact->GetFixtureB()->GetBody());
+
+          missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
+                                      contact->GetFixtureB()->GetBody()),
+                          missiles_.end());
+
+          invaders_.erase(std::remove(invaders_.begin(), invaders_.end(),
+                                    contact->GetFixtureA()->GetBody()),
+                        invaders_.end());
+
+          score_ += 20;
+          is_destroyed_ = true;
+          animation_x_ = contact->GetFixtureA()->GetBody()->GetPosition().x;
+          animation_y_ = contact->GetFixtureA()->GetBody()->GetPosition().y;
+
+          cinder::audio::SourceFileRef sourceFile =
+              cinder::audio::load(cinder::app::loadAsset("invaderkilled.wav"));
+          invader_killed_voice_ = cinder::audio::Voice::create(sourceFile);
+
+          // Start playing audio from the voice:
+          invader_killed_voice_->start();
+        }
+      }
+    }
+
+    const auto time = std::chrono::system_clock::now();
+
+    double time_fire = std::chrono::duration_cast<std::chrono::milliseconds>
+        (time - animation_time_elapsed_).count();
+    time_fire /= 1000.0;
+
+    if (time_fire >= 1.0) {
+      is_destroyed_ = false;
+      animation_time_elapsed_ = time;
+    }
+  }
 }
+
 
 void MyApp::draw() {
   cinder::gl::enableAlphaBlending();
