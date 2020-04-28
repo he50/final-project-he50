@@ -6,8 +6,12 @@
 #include <cinder/app/App.h>
 #include <cinder/gl/gl.h>
 #include <Box2D/Box2D.h>
-
+#include <cinder/audio/audio.h>
 #include "cinder/app/RendererGl.h"
+#include <mylibrary/leaderboard.h>
+#include <mylibrary/invader.h>
+
+using cinder::audio::VoiceRef;
 
 namespace myapp {
 
@@ -18,9 +22,23 @@ class MyApp : public cinder::app::App {
   void update() override;
   void draw() override;
   void mouseDown(cinder::app::MouseEvent event) override;
-  void addBox(const cinder::vec2 &pos);
+  void AddMissile(const cinder::vec2 &pos);
+  void addPlayer();
+  void addAlien();
+  void addShield();
   void keyDown(cinder::app::KeyEvent) override;
+  void DrawScore();
 
+ private:
+  mylibrary::LeaderBoard leaderboard_;
+  int player_x_;
+  int player_y_;
+  b2World* world_;
+  std::vector<b2Body*> missiles_;
+  cinder::gl::Texture2dRef fire_texture_;
+  cinder::audio::VoiceRef fire_voice_;
+  int kRadius;
+  const float kBoxSize = 10;
 };
 
 }  // namespace myapp

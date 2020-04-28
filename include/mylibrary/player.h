@@ -6,13 +6,21 @@
 #define FINALPROJECT_PLAYER_H
 
 #include <string>
+#include <Box2D/Box2D.h>
 
 namespace mylibrary {
 
-struct Player {
+class Player {
+ public:
+  Player() = default;
   Player(const std::string& name, size_t score) : name(name), score(score) {}
+  void SetBody(b2World *world, int player_x, int player_y);
+  b2Body* GetBody();
   std::string name;
   size_t score;
+  b2Body* player_body_;
+  size_t x;
+  size_t y;
 };
 
 }  // namespace mylibrary
