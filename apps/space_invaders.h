@@ -13,7 +13,7 @@
 
 using cinder::audio::VoiceRef;
 
-namespace myapp {
+namespace spaceinvaders {
 
 class MyApp : public cinder::app::App {
  public:
@@ -36,6 +36,7 @@ class MyApp : public cinder::app::App {
   b2World* world_;
   std::vector<b2Body*> missiles_;
   std::vector<b2Body*> invaders_;
+  std::vector<b2Body*> shields_;
   cinder::gl::Texture2dRef fire_texture_;
   cinder::audio::VoiceRef fire_voice_;
   cinder::gl::Texture2dRef player_texture_;

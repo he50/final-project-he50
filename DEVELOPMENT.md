@@ -18,5 +18,9 @@
    - Add key commands
    - Add player to cinder as well as texture
    - TODO: Add aliens and shield
-   - TODO: Refactor player class
+   - TODO: ~~Refactor player class~~
+   
+ - **4/25/20** Refactor code from space_invaders.cc to my_library
+    - Add invader.h and invader.cc to create 
+    - TODO: add shield class
 

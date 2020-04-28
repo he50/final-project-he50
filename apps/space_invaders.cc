@@ -1,16 +1,17 @@
 // Copyright (c) 2020 [Your Name]. All rights reserved.
-#include "my_app.h"
+#include "space_invaders.h"
 
+#include <Box2D/Box2D.h>
 #include <cinder/app/App.h>
 #include <cinder/gl/gl.h>
-#include "cinder/app/RendererGl.h"
-#include "cinder/audio/audio.h"
-#include <Box2D/Box2D.h>
-#include <vector>
-
 #include <mylibrary/invader.h>
 #include <mylibrary/player.h>
 #include <mylibrary/shield.h>
+
+#include <vector>
+
+#include "cinder/app/RendererGl.h"
+#include "cinder/audio/audio.h"
 
 const char kDbPath[] = "snake.db";
 const char kNormalFont[] = "Arial";
@@ -21,7 +22,7 @@ using cinder::audio::VoiceRef;
 // templates/Basic%20Box2D/src/_TBOX_PREFIX_App.cpp
 
 
-namespace myapp {
+namespace spaceinvaders {
 
 using cinder::app::KeyEvent;
 
@@ -100,6 +101,16 @@ void MyApp::AddInvader() {
   }
 }
 
+void MyApp::AddShield() {
+  for (int i = 0; i < 4; i++) {
+
+    mylibrary::Shield shield = mylibrary::Shield
+        (world_, i * 200 + 100, getWindowHeight() - 120);
+
+    shields_.push_back(shield.GetBody());
+  }
+}
+
 void MyApp::update() {
   for( int i = 0; i < 10; ++i )
     world_->Step( 1 / 30.0f, 10, 10 );
@@ -156,5 +167,5 @@ void MyApp::keyDown(KeyEvent event) {
   }
 }
 
-}  // namespace myapp
+}  // namespace spaceinvaders
 
