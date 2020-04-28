@@ -37,9 +37,11 @@ class MyApp : public cinder::app::App {
   std::vector<b2Body*> missiles_;
   std::vector<b2Body*> invaders_;
   std::vector<b2Body*> shields_;
+  cinder::gl::Texture2dRef player_texture_;
+  cinder::gl::Texture2dRef invader_texture_;
+  cinder::gl::Texture2dRef shield_texture_;
   cinder::gl::Texture2dRef fire_texture_;
   cinder::audio::VoiceRef fire_voice_;
-  cinder::gl::Texture2dRef player_texture_;
   const float kRadius;
   const float kBoxSize;
 };

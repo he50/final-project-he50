@@ -43,10 +43,14 @@ void MyApp::setup() {
   b2Vec2 gravity(0.0f, 0.0f);
   world_ = new b2World(gravity);
 
-  fire_texture_ = cinder::gl::Texture2d::create(
-      loadImage(loadAsset("fire.png")));
   player_texture_ = cinder::gl::Texture2d::create(
       loadImage(loadAsset("player.png")));
+  invader_texture_ = cinder::gl::Texture2d::create(
+      loadImage(loadAsset("invader.png")));
+  shield_texture_ = cinder::gl::Texture2d::create(
+      loadImage(loadAsset("shield.png")));
+  fire_texture_ = cinder::gl::Texture2d::create(
+      loadImage(loadAsset("fire.png")));
 }
 
 void MyApp::AddMissile(const vec2 &pos) {
@@ -117,19 +121,61 @@ void MyApp::update() {
 }
 
 void MyApp::draw() {
+  cinder::gl::enableAlphaBlending();
   gl::clear();
 
-  gl::color( 1, 0.5f, 0.25f );
-  for( const auto &missile : missiles_ ) {
-    gl::pushModelMatrix();
-    gl::translate( missile->GetPosition().x, missile->GetPosition().y );
-    gl::rotate( missile->GetAngle() );
+  AddPlayer();
+  AddShield();
 
-    gl::drawSolidRect( Rectf( -1, -10, 1, 10 ) );
+  if (invaders_.empty()) {
+    AddInvader();
+  }
+
+  gl::color( 0, 1, 0 );
+  for(const auto& missiles : missiles_) {
+//    gl::pushModelMatrix();
+//    gl::translate(missiles->GetPosition().x, missiles->GetPosition().y);
+//    gl::rotate(missiles->GetAngle());
+//
+//    gl::drawSolidRect(Rectf( -1, -5, 1, 5 ));
+//    missiles->SetLinearVelocity({0.0f, -30.0f});
+//
+//    gl::popModelMatrix();
+
+
+    gl::pushModelMatrix();
+    gl::translate(missiles->GetPosition().x, missiles->GetPosition().y);
+    gl::rotate(missiles->GetAngle());
+    gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
+    missiles->SetLinearVelocity(b2Vec2(0.0f, -30.0f));
+    gl::popModelMatrix();
+  }
+
+  for (const auto& invader : invaders_) {
+    gl::pushModelMatrix();
+
+    gl::translate(invader->GetPosition().x, invader ->GetPosition().y);
+    gl::rotate(invader->GetAngle());
+
+    cinder::Rectf rectangle = Rectf(-18, -18, 18, 18);
+    cinder::gl::draw(invader_texture_, rectangle);
 
     gl::popModelMatrix();
   }
+
+  for (const auto& shield : shields_) {
+    gl::pushModelMatrix();
+    gl::translate(shield->GetPosition().x, shield->GetPosition().y);
+    gl::rotate(shield->GetAngle());
+
+    cinder::Rectf rectangle = Rectf(-45, -25, 45, 25);
+    cinder::gl::draw(shield_texture_, rectangle);
+
+    gl::popModelMatrix();
+  }
+
 }
+
 
 void MyApp::mouseDown(MouseEvent event) {
   //addMissiles(event.getPos());

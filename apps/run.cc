@@ -9,7 +9,7 @@ using cinder::app::App;
 using cinder::app::RendererGl;
 
 
-namespace myapp {
+namespace spaceinvaders {
 
 const int kSamples = 8;
 const int kWidth = 800;
@@ -24,6 +24,6 @@ void SetUp(App::Settings* settings) {
 
 
 // This is a macro that runs the application.
-CINDER_APP(myapp::MyApp,
-           RendererGl(RendererGl::Options().msaa(myapp::kSamples)),
-           myapp::SetUp)
+CINDER_APP(spaceinvaders::MyApp,
+           RendererGl(RendererGl::Options().msaa(spaceinvaders::kSamples)),
+           spaceinvaders::SetUp)
