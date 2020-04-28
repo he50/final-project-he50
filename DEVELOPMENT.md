@@ -16,4 +16,7 @@
  - **4/24/20** Refactor Missiles to shoot circles
    - Missiles shoot circles and b2World has no gravity.
    - Add key commands
-   - Box2d and SQLite
+   - Add player to cinder as well as texture
+   - TODO: Add aliens and shield
+   - TODO: Refactor player class
+
