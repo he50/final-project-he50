@@ -19,8 +19,7 @@ class Player {
   std::string name;
   size_t score;
   b2Body* player_body_;
-  size_t x;
-  size_t y;
+  const float kBoxSize = 20.0f;
 };
 
 }  // namespace mylibrary
