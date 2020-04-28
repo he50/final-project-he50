@@ -24,8 +24,8 @@ class MyApp : public cinder::app::App {
   void mouseDown(cinder::app::MouseEvent event) override;
   void AddMissile(const cinder::vec2 &pos);
   void AddPlayer();
-  void addAlien();
-  void addShield();
+  void AddInvader();
+  void AddShield();
   void keyDown(cinder::app::KeyEvent) override;
   void DrawScore();
 
@@ -35,11 +35,12 @@ class MyApp : public cinder::app::App {
   int player_y_;
   b2World* world_;
   std::vector<b2Body*> missiles_;
+  std::vector<b2Body*> invaders_;
   cinder::gl::Texture2dRef fire_texture_;
   cinder::audio::VoiceRef fire_voice_;
   cinder::gl::Texture2dRef player_texture_;
-  int kRadius;
-  const float kBoxSize = 10;
+  const float kRadius;
+  const float kBoxSize;
 };
 
 }  // namespace myapp

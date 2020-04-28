@@ -32,6 +32,7 @@ MyApp::MyApp()
     : leaderboard_{cinder::app::getAssetPath(kDbPath).string()},
       player_y_{getWindowHeight() - 30},
       player_x_{getWindowWidth() / 2},
+      kBoxSize{20},
       kRadius{5}{}
 
 void MyApp::setup() {
@@ -62,7 +63,7 @@ void MyApp::AddMissile(const vec2 &pos) {
 //  fixtureDef.density = 1.0f;
 
   b2CircleShape bullet;
-  bullet.m_p.Set(5.0f, 5.0f);
+  bullet.m_p.Set(kRadius, kRadius);
   bullet.m_radius = kRadius;
 
   b2FixtureDef fixtureDef;
@@ -82,12 +83,22 @@ void MyApp::AddPlayer() {
   gl::translate(player.GetBody()->GetPosition().x, player.GetBody()->GetPosition().y);
   gl::rotate(player.GetBody()->GetAngle());
 
-  cinder::Rectf rectangle = Rectf( -20, -20, 20, 20 );
+  cinder::Rectf rectangle = Rectf( -kBoxSize, -kBoxSize, kBoxSize, kBoxSize );
   cinder::gl::draw(player_texture_, rectangle);
 
   gl::popModelMatrix();
 }
 
+void MyApp::AddInvader() {
+  for (int j = 0; j < 4; j++) {
+    for (int i = 0; i < 11; i++) {
+      mylibrary::Invader invader = mylibrary::Invader
+          (world_, i * 65 + 70, j * 75 + 150);
+
+      invaders_.push_back(invader.GetBody());
+    }
+  }
+}
 
 void MyApp::update() {
   for( int i = 0; i < 10; ++i )
@@ -128,7 +139,7 @@ void MyApp::keyDown(KeyEvent event) {
       break;
     }
     case KeyEvent::KEY_SPACE: {
-      addMissile({player_x_, player_y_});
+      AddMissile({player_x_, player_y_});
 
       cinder::audio::SourceFileRef sourceFile =
           cinder::audio::load
