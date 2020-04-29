@@ -53,6 +53,26 @@ void MyApp::setup() {
       loadImage(loadAsset("fire.png")));
 }
 
+template <typename C>
+void PrintText(const std::string& text, const C& color, const cinder::ivec2& size,
+               const cinder::vec2& loc) {
+  cinder::gl::color(color);
+
+  auto box = TextBox()
+      .alignment(TextBox::CENTER)
+      .font(cinder::Font(kNormalFont, 30))
+      .size(size)
+      .color(color)
+      .backgroundColor(ColorA(0, 0, 0, 0))
+      .text(text);
+
+  const auto box_size = box.getSize();
+  const cinder::vec2 locp = {loc.x - box_size.x/2, loc.y -box_size.y/2};
+  const auto surface = box.render();
+  const auto texture = cinder::gl::Texture::create(surface);
+  cinder::gl::draw(texture, locp);
+}
+
 void MyApp::AddMissile(const vec2 &pos) {
   b2BodyDef bodyDef;
   bodyDef.type = b2_dynamicBody;
@@ -240,6 +260,15 @@ void MyApp::draw() {
 
 }
 
+void MyApp::DrawScore() {
+  const cinder::vec2 center = getWindowCenter();
+  const std::string text = "Current Score: " + std::to_string(score_);
+  const Color color = Color::white();
+  const cinder::ivec2 size = {300, 50};
+  const cinder::vec2 loc = {center.x , 50};
+
+  PrintText(text, color, size, loc);
+}
 
 void MyApp::mouseDown(MouseEvent event) {
   //addMissiles(event.getPos());
