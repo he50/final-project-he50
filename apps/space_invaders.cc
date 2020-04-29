@@ -147,6 +147,18 @@ void MyApp::update() {
           invader_killed_voice_->start();
         }
       }
+
+      const auto time = std::chrono::system_clock::now();
+
+      double time_fire = std::chrono::duration_cast<std::chrono::milliseconds>
+          (time - animation_time_elapsed_).count();
+      time_fire /= 1000.0;
+
+      if (time_fire >= 1.0) {
+        is_destroyed_ = false;
+        animation_time_elapsed_ = time;
+      }
+
     }
 
     const auto time = std::chrono::system_clock::now();
