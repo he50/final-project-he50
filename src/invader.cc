@@ -23,7 +23,7 @@ Invader::Invader(b2World *world, int x_coordinate, int y_coordinate) {
 
   invader_body_->CreateFixture(&fixtureDef);
 
-  //invader_body_->SetUserData((void*)"invader");
+  invader_body_->SetUserData((void*)"invader");
 }
 
 b2Body* Invader::GetBody() {

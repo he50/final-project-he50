@@ -194,6 +194,15 @@ void MyApp::draw() {
     gl::popModelMatrix();
   }
 
+  if (is_destroyed_) {
+    gl::pushModelMatrix();
+    gl::translate(animation_x_, animation_y_);
+
+    cinder::Rectf rectangle = Rectf(-18, -18, 18, 18);
+    cinder::gl::draw(fire_texture_, rectangle);
+    gl::popModelMatrix();
+  }
+
   for (const auto& invader : invaders_) {
     gl::pushModelMatrix();
 
