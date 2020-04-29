@@ -29,14 +29,16 @@ using cinder::app::KeyEvent;
 using namespace ci;
 using namespace ci::app;
 
-MyApp::MyApp()
+SpaceInvaders::SpaceInvaders()
     : leaderboard_{cinder::app::getAssetPath(kDbPath).string()},
       player_y_{getWindowHeight() - 30},
       player_x_{getWindowWidth() / 2},
-      kBoxSize{20},
-      kRadius{5}{}
+      kPlayerSize{20},
+      kRadius{5},
+      kInvaderSize{18},
+      score_{0} {}
 
-void MyApp::setup() {
+void SpaceInvaders::setup() {
   cinder::gl::enableDepthWrite();
   cinder::gl::enableDepthRead();
 
@@ -54,8 +56,8 @@ void MyApp::setup() {
 }
 
 template <typename C>
-void PrintText(const std::string& text, const C& color, const cinder::ivec2& size,
-               const cinder::vec2& loc) {
+void PrintText(const std::string& text, const C& color, 
+    const cinder::ivec2& size, const cinder::vec2& loc) {
   cinder::gl::color(color);
 
   auto box = TextBox()
@@ -73,10 +75,10 @@ void PrintText(const std::string& text, const C& color, const cinder::ivec2& siz
   cinder::gl::draw(texture, locp);
 }
 
-void MyApp::AddMissile(const vec2 &pos) {
+void SpaceInvaders::AddMissile(const vec2 &pos) {
   b2BodyDef bodyDef;
   bodyDef.type = b2_dynamicBody;
-  bodyDef.position.Set(pos.x, pos.y - 20);
+  bodyDef.position.Set(pos.x, pos.y - kPlayerSize);
 
   b2Body *body = world_->CreateBody(&bodyDef);
 
@@ -100,21 +102,23 @@ void MyApp::AddMissile(const vec2 &pos) {
   missiles_.push_back(body);
 }
 
-void MyApp::AddPlayer() {
+void SpaceInvaders::AddPlayer() {
   mylibrary::Player player = mylibrary::Player();
   player.SetBody(world_, player_x_, player_y_);
 
   gl::pushModelMatrix();
-  gl::translate(player.GetBody()->GetPosition().x, player.GetBody()->GetPosition().y);
+  gl::translate(player.GetBody()->GetPosition().x,
+      player.GetBody()->GetPosition().y);
   gl::rotate(player.GetBody()->GetAngle());
 
-  cinder::Rectf rectangle = Rectf( -kBoxSize, -kBoxSize, kBoxSize, kBoxSize );
+  cinder::Rectf rectangle = Rectf(-kPlayerSize, -kPlayerSize,
+      kPlayerSize, kPlayerSize);
   cinder::gl::draw(player_texture_, rectangle);
 
   gl::popModelMatrix();
 }
 
-void MyApp::AddInvader() {
+void SpaceInvaders::AddInvader() {
   for (int j = 0; j < 4; j++) {
     for (int i = 0; i < 11; i++) {
       mylibrary::Invader invader = mylibrary::Invader
@@ -125,58 +129,49 @@ void MyApp::AddInvader() {
   }
 }
 
-void MyApp::AddShield() {
+void SpaceInvaders::AddShield() {
   for (int i = 0; i < 4; i++) {
-
     mylibrary::Shield shield = mylibrary::Shield
-        (world_, i * 200 + 100, getWindowHeight() - 120);
+        (world_, i * 200 + 100,getWindowHeight() - 120);
 
     shields_.push_back(shield.GetBody());
   }
 }
 
-void MyApp::update() {
+void SpaceInvaders::update() {
   for (int i = 0; i < 10; ++i) {
     world_->Step(1 / 30.0f, 10, 10);
-    for (b2Contact* contact = world_->GetContactList(); contact; contact = contact->GetNext()) {
+    for (b2Contact* contact = world_->GetContactList();
+                    contact; contact = contact->GetNext()) {
 
       if (contact->IsTouching()) {
 
-        if (contact->GetFixtureA()->GetBody()->GetUserData() == "invader" && contact->GetFixtureB()->GetBody()->GetUserData() == "missile") {
+        if (contact->GetFixtureA()->GetBody()->GetUserData() == "invader" 
+        && contact->GetFixtureB()->GetBody()->GetUserData() == "missile") {
           world_->DestroyBody(contact->GetFixtureA()->GetBody());
           world_->DestroyBody(contact->GetFixtureB()->GetBody());
 
-          missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
-                                      contact->GetFixtureB()->GetBody()),
-                          missiles_.end());
+          missiles_.erase(std::remove(missiles_.begin(),
+              missiles_.end(), contact->GetFixtureB()->GetBody()),
+                  missiles_.end());
 
-          invaders_.erase(std::remove(invaders_.begin(), invaders_.end(),
-                                    contact->GetFixtureA()->GetBody()),
-                        invaders_.end());
+          invaders_.erase(std::remove(invaders_.begin(), 
+              invaders_.end(), contact->GetFixtureA()->GetBody()),
+                  invaders_.end());
 
           score_ += 20;
           is_destroyed_ = true;
           animation_x_ = contact->GetFixtureA()->GetBody()->GetPosition().x;
           animation_y_ = contact->GetFixtureA()->GetBody()->GetPosition().y;
 
-          cinder::audio::SourceFileRef sourceFile =
-              cinder::audio::load(cinder::app::loadAsset("invaderkilled.wav"));
-          invader_killed_voice_ = cinder::audio::Voice::create(sourceFile);
+          cinder::audio::SourceFileRef source_file =
+              cinder::audio::load(cinder::app::loadAsset
+              ("invaderkilled.wav"));
+          invader_killed_voice_ = cinder::audio::Voice::create(source_file);
 
           // Start playing audio from the voice:
           invader_killed_voice_->start();
         }
-      }
-
-      const auto time = std::chrono::system_clock::now();
-
-      double time_fire = std::chrono::duration_cast<std::chrono::milliseconds>
-          (time - animation_time_elapsed_).count();
-      time_fire /= 1000.0;
-
-      if (time_fire >= 1.0) {
-        is_destroyed_ = false;
-        animation_time_elapsed_ = time;
       }
 
     }
@@ -195,12 +190,13 @@ void MyApp::update() {
 }
 
 
-void MyApp::draw() {
+void SpaceInvaders::draw() {
   cinder::gl::enableAlphaBlending();
   gl::clear();
 
   AddPlayer();
   AddShield();
+  DrawScore();
 
   if (invaders_.empty()) {
     AddInvader();
@@ -230,7 +226,8 @@ void MyApp::draw() {
     gl::pushModelMatrix();
     gl::translate(animation_x_, animation_y_);
 
-    cinder::Rectf rectangle = Rectf(-18, -18, 18, 18);
+    cinder::Rectf rectangle = Rectf(-kInvaderSize,-kInvaderSize, 
+        kInvaderSize, kInvaderSize);
     cinder::gl::draw(fire_texture_, rectangle);
     gl::popModelMatrix();
   }
@@ -241,7 +238,8 @@ void MyApp::draw() {
     gl::translate(invader->GetPosition().x, invader ->GetPosition().y);
     gl::rotate(invader->GetAngle());
 
-    cinder::Rectf rectangle = Rectf(-18, -18, 18, 18);
+    cinder::Rectf rectangle = Rectf
+        (-kInvaderSize, -kInvaderSize, kInvaderSize, kInvaderSize);
     cinder::gl::draw(invader_texture_, rectangle);
 
     gl::popModelMatrix();
@@ -260,7 +258,7 @@ void MyApp::draw() {
 
 }
 
-void MyApp::DrawScore() {
+void SpaceInvaders::DrawScore() {
   const cinder::vec2 center = getWindowCenter();
   const std::string text = "Current Score: " + std::to_string(score_);
   const Color color = Color::white();
@@ -270,31 +268,31 @@ void MyApp::DrawScore() {
   PrintText(text, color, size, loc);
 }
 
-void MyApp::mouseDown(MouseEvent event) {
+void SpaceInvaders::mouseDown(MouseEvent event) {
   //addMissiles(event.getPos());
 }
 
-void MyApp::keyDown(KeyEvent event) {
+void SpaceInvaders::keyDown(KeyEvent event) {
   switch (event.getCode()) {
     case KeyEvent::KEY_LEFT: {
       if (player_x_ - 40 >= 0) {
-        player_x_ -= 20;
+        player_x_ -= kPlayerSize;
       }
       break;
     }
     case KeyEvent::KEY_RIGHT: {
       if (player_x_ + 40 <= getWindowWidth()) {
-        player_x_ += 20;
+        player_x_ += kPlayerSize;
       }
       break;
     }
     case KeyEvent::KEY_SPACE: {
       AddMissile({player_x_, player_y_});
 
-      cinder::audio::SourceFileRef sourceFile =
+      cinder::audio::SourceFileRef source_file =
           cinder::audio::load
               (cinder::app::loadAsset("shoot.wav"));
-      fire_voice_ = cinder::audio::Voice::create( sourceFile );
+      fire_voice_ = cinder::audio::Voice::create(source_file);
 
       // Start playing audio from the voice:
       fire_voice_->start();

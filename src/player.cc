@@ -15,7 +15,7 @@ void Player::SetBody(b2World *world, int player_x, int player_y) {
   player_body_ = world->CreateBody(&bodyDef);
 
   b2PolygonShape dynamicBox;
-  dynamicBox.SetAsBox(kBoxSize, kBoxSize);
+  dynamicBox.SetAsBox(kPlayerSize, kPlayerSize);
 
   b2FixtureDef fixtureDef;
   fixtureDef.shape = &dynamicBox;

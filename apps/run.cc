@@ -24,6 +24,6 @@ void SetUp(App::Settings* settings) {
 
 
 // This is a macro that runs the application.
-CINDER_APP(spaceinvaders::MyApp,
+CINDER_APP(spaceinvaders::SpaceInvaders,
            RendererGl(RendererGl::Options().msaa(spaceinvaders::kSamples)),
            spaceinvaders::SetUp)
