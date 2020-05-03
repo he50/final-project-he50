@@ -334,6 +334,16 @@ void SpaceInvaders::draw() {
     gl::popModelMatrix();
   }
 
+  if (!invaders_shots_.empty()) {
+    gl::pushModelMatrix();
+    gl::translate(invaders_shots_.back() ->GetPosition().x,
+                  invaders_shots_.back()->GetPosition().y + kInvaderSize);
+    gl::rotate(invaders_shots_.back()->GetAngle());
+    gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
+    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, 20.0f));
+    gl::popModelMatrix();
+  }
+
   if (is_destroyed_) {
     gl::pushModelMatrix();
     gl::translate(animation_x_, animation_y_);
@@ -378,6 +388,38 @@ void SpaceInvaders::DrawScore() {
   const cinder::vec2 loc = {center.x , 50};
 
   PrintText(text, color, size, loc);
+}
+
+void SpaceInvaders::DrawGameOver() {
+  // Lazily print.
+  if (top_players_.empty()) return;
+  if (player_scores_.empty()) return;
+
+  const cinder::vec2 center = getWindowCenter();
+  const cinder::ivec2 size = {500, 50};
+  const Color color = Color::black();
+
+  PrintText("Press R to Replay!", color, size, {center.x, 50});
+
+  const std::string your_score = "Your Score: " + std::to_string(score_);
+  PrintText(your_score, color, size, {center.x, 200});
+
+  size_t row = 0;
+  PrintText("Game Over :(", color, size, center);
+  for (const spaceinvaderslibrary::Player& player : top_players_) {
+    std::stringstream ss;
+    ss << player.name << " - " << player.score;
+    PrintText(ss.str(), color, size, {center.x, center.y +(++row)*50});
+  }
+
+  std::stringstream ss;
+  ss << "Current Player High Scores: ";
+  PrintText(ss.str(), color, size, {center.x, center.y +(++row)*50});
+  for (const spaceinvaderslibrary::Player& player : player_scores_) {
+    std::stringstream ss;
+    ss << player.score;
+    PrintText(ss.str(), color, size, {center.x, center.y +(++row)*50});
+  }
 }
 
 void SpaceInvaders::mouseDown(MouseEvent event) {
