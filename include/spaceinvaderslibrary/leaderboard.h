@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-namespace mylibrary {
+namespace spaceinvaderslibrary {
 class LeaderBoard {
  public:
   // Creates a new leaderboard table if it doesn't already exist.

@@ -3,9 +3,9 @@
 //
 #include <string>
 #include <Box2D/Box2D.h>
-#include <mylibrary/player.h>
+#include <spaceinvaderslibrary/player.h>
 
-namespace mylibrary {
+namespace spaceinvaderslibrary {
 
 void Player::SetBody(b2World *world, int player_x, int player_y) {
   b2BodyDef bodyDef;
@@ -30,4 +30,4 @@ b2Body* Player::GetBody() {
   return player_body_;
 }
 
-}  // namespace mylibrary
+}  // namespace spaceinvaderslibrary

@@ -7,7 +7,7 @@
 
 #include <Box2D/Box2D.h>
 
-namespace mylibrary {
+namespace spaceinvaderslibrary {
 
 class Shield {
  public:
@@ -19,6 +19,6 @@ class Shield {
   b2Body* shield_body_;
 };
 
-}  // namespace mylibrary
+}  // namespace spaceinvaderslibrary
 
 #endif  // FINALPROJECT_SHIELD_H

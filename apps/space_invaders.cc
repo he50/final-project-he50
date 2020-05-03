@@ -4,23 +4,24 @@
 #include <Box2D/Box2D.h>
 #include <cinder/app/App.h>
 #include <cinder/gl/gl.h>
-#include <mylibrary/invader.h>
-#include <mylibrary/player.h>
-#include <mylibrary/shield.h>
+#include <spaceinvaderslibrary/invader.h>
+#include <spaceinvaderslibrary/player.h>
+#include <spaceinvaderslibrary/shield.h>
+#include <gflags/gflags.h>
 
 #include <vector>
 
 #include "cinder/app/RendererGl.h"
 #include "cinder/audio/audio.h"
 
-const char kDbPath[] = "snake.db";
+const char kDbPath[] = "spaceinvaders.db";
 const char kNormalFont[] = "Arial";
 using cinder::audio::VoiceRef;
 
 // EXAMPLE FROM:
 // https://github.com/cinder/Cinder/blob/master/blocks/Box2D/
 // templates/Basic%20Box2D/src/_TBOX_PREFIX_App.cpp
-
+DECLARE_string(name);
 
 namespace spaceinvaders {
 
@@ -33,10 +34,13 @@ SpaceInvaders::SpaceInvaders()
     : leaderboard_{cinder::app::getAssetPath(kDbPath).string()},
       player_y_{getWindowHeight() - 30},
       player_x_{getWindowWidth() / 2},
-      kPlayerSize{20},
-      kRadius{5},
+      kPlayerSize{15},
+      kRadius{3},
       kInvaderSize{18},
-      score_{0} {}
+      player_name_{FLAGS_name},
+      score_{0},
+      is_start_{true},
+      state_{GameState::kPlaying} {}
 
 void SpaceInvaders::setup() {
   cinder::gl::enableDepthWrite();
@@ -53,6 +57,7 @@ void SpaceInvaders::setup() {
       loadImage(loadAsset("shield.png")));
   fire_texture_ = cinder::gl::Texture2d::create(
       loadImage(loadAsset("fire.png")));
+
 }
 
 template <typename C>
@@ -65,7 +70,7 @@ void PrintText(const std::string& text, const C& color,
       .font(cinder::Font(kNormalFont, 30))
       .size(size)
       .color(color)
-      .backgroundColor(ColorA(0, 0, 0, 0))
+      .backgroundColor(ColorA(1, 0, 0, 0))
       .text(text);
 
   const auto box_size = box.getSize();
@@ -82,13 +87,6 @@ void SpaceInvaders::AddMissile(const vec2 &pos) {
 
   b2Body *body = world_->CreateBody(&bodyDef);
 
-//  b2PolygonShape dynamicBox;
-//  dynamicBox.SetAsBox(5.0f, 5.0f);
-//
-//  b2FixtureDef fixtureDef;
-//  fixtureDef.shape = &dynamicBox;
-//  fixtureDef.density = 1.0f;
-
   b2CircleShape bullet;
   bullet.m_p.Set(kRadius, kRadius);
   bullet.m_radius = kRadius;
@@ -103,26 +101,30 @@ void SpaceInvaders::AddMissile(const vec2 &pos) {
 }
 
 void SpaceInvaders::AddPlayer() {
-  mylibrary::Player player = mylibrary::Player();
+  spaceinvaderslibrary::Player player = spaceinvaderslibrary::Player();
   player.SetBody(world_, player_x_, player_y_);
 
   gl::pushModelMatrix();
   gl::translate(player.GetBody()->GetPosition().x,
-      player.GetBody()->GetPosition().y);
-  gl::rotate(player.GetBody()->GetAngle());
+                player.GetBody()->GetPosition().y);
+  gl::rotate(player.GetBody() ->GetAngle());
 
   cinder::Rectf rectangle = Rectf(-kPlayerSize, -kPlayerSize,
-      kPlayerSize, kPlayerSize);
+                                  kPlayerSize, kPlayerSize);
   cinder::gl::draw(player_texture_, rectangle);
 
   gl::popModelMatrix();
+
 }
 
 void SpaceInvaders::AddInvader() {
   for (int j = 0; j < 4; j++) {
     for (int i = 0; i < 11; i++) {
-      mylibrary::Invader invader = mylibrary::Invader
+      spaceinvaderslibrary::Invader invader = spaceinvaderslibrary::Invader
           (world_, i * 65 + 70, j * 75 + 150);
+      if (j == 3) {
+        front_invaders_.push_back(invader.GetBody());
+      }
 
       invaders_.push_back(invader.GetBody());
     }
@@ -131,33 +133,38 @@ void SpaceInvaders::AddInvader() {
 
 void SpaceInvaders::AddShield() {
   for (int i = 0; i < 4; i++) {
-    mylibrary::Shield shield = mylibrary::Shield
+    spaceinvaderslibrary::Shield shield = spaceinvaderslibrary::Shield
         (world_, i * 200 + 100,getWindowHeight() - 120);
 
     shields_.push_back(shield.GetBody());
   }
 }
 
+
+
 void SpaceInvaders::update() {
-  for (int i = 0; i < 10; ++i) {
+
+  for (int i = 0; i < 15; ++i) {
     world_->Step(1 / 30.0f, 10, 10);
-    for (b2Contact* contact = world_->GetContactList();
-                    contact; contact = contact->GetNext()) {
-
+    for (b2Contact* contact = world_->GetContactList(); contact;
+         contact = contact->GetNext()) {
       if (contact->IsTouching()) {
-
-        if (contact->GetFixtureA()->GetBody()->GetUserData() == "invader" 
-        && contact->GetFixtureB()->GetBody()->GetUserData() == "missile") {
+        if (contact->GetFixtureA()->GetBody()->GetUserData() == "invader" &&
+            contact->GetFixtureB()->GetBody()->GetUserData() == "missile") {
           world_->DestroyBody(contact->GetFixtureA()->GetBody());
           world_->DestroyBody(contact->GetFixtureB()->GetBody());
 
-          missiles_.erase(std::remove(missiles_.begin(),
-              missiles_.end(), contact->GetFixtureB()->GetBody()),
-                  missiles_.end());
+          missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
+                                      contact->GetFixtureB()->GetBody()),
+                          missiles_.end());
 
-          invaders_.erase(std::remove(invaders_.begin(), 
-              invaders_.end(), contact->GetFixtureA()->GetBody()),
-                  invaders_.end());
+          invaders_.erase(std::remove(invaders_.begin(), invaders_.end(),
+                                      contact->GetFixtureA()->GetBody()),
+                          invaders_.end());
+
+          front_invaders_.erase(std::remove(front_invaders_.begin(), front_invaders_.end(),
+                                            contact->GetFixtureA()->GetBody()),
+                                front_invaders_.end());
 
           score_ += 20;
           is_destroyed_ = true;
@@ -165,21 +172,20 @@ void SpaceInvaders::update() {
           animation_y_ = contact->GetFixtureA()->GetBody()->GetPosition().y;
 
           cinder::audio::SourceFileRef source_file =
-              cinder::audio::load(cinder::app::loadAsset
-              ("invaderkilled.wav"));
+              cinder::audio::load(cinder::app::loadAsset("invaderkilled.wav"));
           invader_killed_voice_ = cinder::audio::Voice::create(source_file);
 
           // Start playing audio from the voice:
           invader_killed_voice_->start();
         }
       }
-
     }
 
     const auto time = std::chrono::system_clock::now();
 
-    double time_fire = std::chrono::duration_cast<std::chrono::milliseconds>
-        (time - animation_time_elapsed_).count();
+    double time_fire = std::chrono::duration_cast<std::chrono::milliseconds>(
+                           time - animation_time_elapsed_)
+                           .count();
     time_fire /= 1000.0;
 
     if (time_fire >= 1.0) {
@@ -195,7 +201,6 @@ void SpaceInvaders::draw() {
   gl::clear();
 
   AddPlayer();
-  AddShield();
   DrawScore();
 
   if (invaders_.empty()) {
@@ -204,16 +209,6 @@ void SpaceInvaders::draw() {
 
   gl::color( 0, 1, 0 );
   for(const auto& missiles : missiles_) {
-//    gl::pushModelMatrix();
-//    gl::translate(missiles->GetPosition().x, missiles->GetPosition().y);
-//    gl::rotate(missiles->GetAngle());
-//
-//    gl::drawSolidRect(Rectf( -1, -5, 1, 5 ));
-//    missiles->SetLinearVelocity({0.0f, -30.0f});
-//
-//    gl::popModelMatrix();
-
-
     gl::pushModelMatrix();
     gl::translate(missiles->GetPosition().x, missiles->GetPosition().y);
     gl::rotate(missiles->GetAngle());
@@ -286,6 +281,11 @@ void SpaceInvaders::keyDown(KeyEvent event) {
       }
       break;
     }
+
+    case KeyEvent::KEY_r: {
+      ResetGame();
+      break;
+    }
     case KeyEvent::KEY_SPACE: {
       AddMissile({player_x_, player_y_});
 
@@ -303,6 +303,8 @@ void SpaceInvaders::keyDown(KeyEvent event) {
     }
   }
 }
+
+
 
 }  // namespace spaceinvaders
 

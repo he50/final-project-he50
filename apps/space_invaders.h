@@ -3,17 +3,27 @@
 #ifndef FINALPROJECT_APPS_MYAPP_H_
 #define FINALPROJECT_APPS_MYAPP_H_
 
-#include <cinder/app/App.h>
-#include <cinder/gl/gl.h>
 #include <Box2D/Box2D.h>
+#include <cinder/app/App.h>
 #include <cinder/audio/audio.h>
+#include <cinder/gl/gl.h>
+#include <spaceinvaderslibrary/invader.h>
+#include <spaceinvaderslibrary/leaderboard.h>
+
+#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
+#include <string>
+
 #include "cinder/app/RendererGl.h"
-#include <mylibrary/leaderboard.h>
-#include <mylibrary/invader.h>
 
 using cinder::audio::VoiceRef;
 
 namespace spaceinvaders {
+
+enum class GameState {
+  kPlaying,
+  kGameOver,
+};
 
 class SpaceInvaders : public cinder::app::App {
  public:
@@ -26,11 +36,17 @@ class SpaceInvaders : public cinder::app::App {
   void AddPlayer();
   void AddInvader();
   void AddShield();
+  void AddShot();
+  void DrawGameOver();
   void keyDown(cinder::app::KeyEvent) override;
   void DrawScore();
+  void ResetGame();
 
  private:
-  mylibrary::LeaderBoard leaderboard_;
+  spaceinvaderslibrary::LeaderBoard leaderboard_;
+  std::vector<spaceinvaderslibrary::Player> top_players_;
+  std::vector<spaceinvaderslibrary::Player> player_scores_;
+
   int player_x_;
   int player_y_;
   b2World* world_;
@@ -38,6 +54,8 @@ class SpaceInvaders : public cinder::app::App {
   std::vector<b2Body*> missiles_;
   std::vector<b2Body*> invaders_;
   std::vector<b2Body*> shields_;
+  std::vector<b2Body*> front_invaders_;
+  std::vector<b2Body*> invaders_shots_;
 
   cinder::gl::Texture2dRef player_texture_;
   cinder::gl::Texture2dRef invader_texture_;
@@ -45,16 +63,21 @@ class SpaceInvaders : public cinder::app::App {
   cinder::gl::Texture2dRef fire_texture_;
 
   std::chrono::time_point<std::chrono::system_clock> animation_time_elapsed_;
+  std::chrono::time_point<std::chrono::system_clock> shot_elapsed_;
+
   cinder::audio::VoiceRef invader_killed_voice_;
   cinder::audio::VoiceRef fire_voice_;
 
   bool is_destroyed_;
+  bool is_start_;
   int animation_x_;
   int animation_y_;
   size_t score_;
   const float kRadius;
   const float kPlayerSize;
   const float kInvaderSize;
+  GameState state_;
+  std::string player_name_;
 };
 
 }  // namespace myapp

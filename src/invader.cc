@@ -2,10 +2,10 @@
 // Created by Jonathan He on 4/28/20.
 //
 
-#include "mylibrary/invader.h"
+#include "spaceinvaderslibrary/invader.h"
 #include <Box2D/Box2D.h>
 
-namespace mylibrary {
+namespace spaceinvaderslibrary {
 
 Invader::Invader(b2World *world, int x_coordinate, int y_coordinate) {
   b2BodyDef bodyDef;
@@ -30,4 +30,4 @@ b2Body* Invader::GetBody() {
   return invader_body_;
 }
 
-}  // namespace mylibrary
+}  // namespace spaceinvaderslibrary

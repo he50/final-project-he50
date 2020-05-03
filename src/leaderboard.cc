@@ -2,14 +2,14 @@
 // Created by Jonathan He on 4/21/20.
 //
 
-#include <mylibrary/leaderboard.h>
-#include <mylibrary/player.h>
+#include <spaceinvaderslibrary/leaderboard.h>
+#include <spaceinvaderslibrary/player.h>
 #include <sqlite_modern_cpp.h>
 
 #include <string>
 #include <vector>
 
-namespace mylibrary {
+namespace spaceinvaderslibrary {
 
 using std::string;
 using std::vector;
@@ -62,4 +62,4 @@ vector<Player> LeaderBoard::RetrieveHighScores(const Player& player,
   return GetPlayers(&rows);
 }
 
-} // namespace mylibrary
+} // namespace spaceinvaderslibrary

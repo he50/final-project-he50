@@ -2,10 +2,10 @@
 // Created by Jonathan He on 4/28/20.
 //
 
-#include "mylibrary/shield.h"
+#include "spaceinvaderslibrary/shield.h"
 #include <Box2D/Box2D.h>
 
-namespace mylibrary {
+namespace spaceinvaderslibrary {
 
 Shield::Shield(b2World *world, int x_coordinate, int y_coordinate) {
   b2BodyDef bodyDef;
@@ -31,4 +31,4 @@ b2Body* Shield::GetBody() {
   return shield_body_;
 }
 
-}  // namespace mylibrary
+}  // namespace spaceinvaderslibrary

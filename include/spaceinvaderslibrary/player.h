@@ -8,7 +8,7 @@
 #include <string>
 #include <Box2D/Box2D.h>
 
-namespace mylibrary {
+namespace spaceinvaderslibrary {
 
 class Player {
  public:
@@ -19,9 +19,9 @@ class Player {
   std::string name;
   size_t score;
   b2Body* player_body_;
-  const float kPlayerSize = 20.0f;
+  const float kPlayerSize = 15;
 };
 
-}  // namespace mylibrary
+}  // namespace spaceinvaderslibrary
 
 #endif  // FINALPROJECT_PLAYER_H

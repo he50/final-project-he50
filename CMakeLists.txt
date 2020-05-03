@@ -103,6 +103,20 @@ if (NOT sqlite-modern-cpp_POPULATED)
     target_include_directories(sqlite-modern-cpp INTERFACE ${sqlite-modern-cpp_SOURCE_DIR}/hdr)
 endif ()
 
+# Command-line parsing library
+FetchContent_Declare(
+        gflags
+        GIT_REPOSITORY https://github.com/gflags/gflags.git
+        GIT_TAG v2.2.2
+)
+
+# Adds gflags::gflags
+FetchContent_GetProperties(gflags)
+if (NOT gflags_POPULATED)
+    FetchContent_Populate(gflags)
+    add_subdirectory(${gflags_SOURCE_DIR} ${gflags_BINARY_DIR})
+endif ()
+
 # Docs only available if this is the main app
 find_package(Doxygen)
 if(Doxygen_FOUND)
