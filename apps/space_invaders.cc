@@ -140,7 +140,29 @@ void SpaceInvaders::AddShield() {
   }
 }
 
+void SpaceInvaders::AddShot() {
+  if (front_invaders_.empty()) return;
+  int random_invader = rand() % front_invaders_.size();
 
+  b2BodyDef bodyDef;
+  bodyDef.type = b2_dynamicBody;
+  bodyDef.position.Set(front_invaders_.at(random_invader)->GetPosition().x,
+                       front_invaders_.at(random_invader)->GetPosition().y + kInvaderSize);
+
+  b2Body* body = world_->CreateBody(&bodyDef);
+
+  b2CircleShape bullet;
+  bullet.m_p.Set(kRadius, kRadius);
+  bullet.m_radius = kRadius;
+
+  b2FixtureDef fixtureDef;
+  fixtureDef.shape = &bullet;
+  fixtureDef.density = 1.0f;
+
+  body->CreateFixture(&fixtureDef);
+  body->SetUserData((void*)"shot");
+  invaders_shots_.push_back(body);
+}
 
 void SpaceInvaders::update() {
 
@@ -207,6 +229,23 @@ void SpaceInvaders::draw() {
     AddInvader();
   }
 
+  if (is_start_) {
+    AddShield();
+    is_start_ = false;
+  }
+
+  const auto time = std::chrono::system_clock::now();
+
+  double time_shot = std::chrono::duration_cast<std::chrono::milliseconds>(
+      time - shot_elapsed_)
+      .count();
+  time_shot /= 1000.0;
+
+  if (time_shot >= 2.0) {
+    AddShot();
+    shot_elapsed_ = time;
+  }
+  
   gl::color( 0, 1, 0 );
   for(const auto& missiles : missiles_) {
     gl::pushModelMatrix();
