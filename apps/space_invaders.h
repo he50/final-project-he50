@@ -32,12 +32,16 @@ class SpaceInvaders : public cinder::app::App {
   void setup() override;
   void update() override;
   void draw() override;
-  void mouseDown(cinder::app::MouseEvent event) override;
   void AddMissile(const cinder::vec2 &pos);
   void AddPlayer();
   void AddInvader();
   void AddShield();
   void AddShot();
+  void DrawShield();
+  void DrawMissile();
+  void DrawInvader();
+  void DrawInvaderShot();
+  void DrawAnimation();
   void DrawGameOver();
   void CheckMissileHitInvader(b2Contact* contact);
   void CheckShieldDestroyed(b2Contact* contact);

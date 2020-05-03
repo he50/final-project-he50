@@ -343,36 +343,28 @@ void SpaceInvaders::draw() {
     shot_elapsed_ = time;
   }
 
-  gl::color( 0, 1, 0 );
-  for(const auto& missiles : missiles_) {
+  gl::color(0, 1, 0);
+  DrawInvaderShot();
+  DrawMissile();
+  DrawAnimation();
+  DrawInvader();
+  DrawShield();
+}
+
+void SpaceInvaders::DrawShield() {
+  for (const auto& shield : shields_) {
     gl::pushModelMatrix();
-    gl::translate(missiles->GetPosition().x, missiles->GetPosition().y);
-    gl::rotate(missiles->GetAngle());
-    gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
-    missiles->SetLinearVelocity(b2Vec2(0.0f, -30.0f));
+    gl::translate(shield->GetPosition().x, shield->GetPosition().y);
+    gl::rotate(shield->GetAngle());
+
+    cinder::Rectf rectangle = Rectf(-45, -25, 45, 25);
+    cinder::gl::draw(shield_texture_, rectangle);
+
     gl::popModelMatrix();
   }
+}
 
-  if (!invaders_shots_.empty()) {
-    gl::pushModelMatrix();
-    gl::translate(invaders_shots_.back() ->GetPosition().x,
-                  invaders_shots_.back()->GetPosition().y + kInvaderSize);
-    gl::rotate(invaders_shots_.back()->GetAngle());
-    gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
-    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, 25.0f));
-    gl::popModelMatrix();
-  }
-
-  if (is_destroyed_) {
-    gl::pushModelMatrix();
-    gl::translate(animation_x_, animation_y_);
-
-    cinder::Rectf rectangle = Rectf(-kInvaderSize,-kInvaderSize, 
-        kInvaderSize, kInvaderSize);
-    cinder::gl::draw(fire_texture_, rectangle);
-    gl::popModelMatrix();
-  }
-
+void SpaceInvaders::DrawInvader() {
   for (const auto& invader : invaders_) {
     gl::pushModelMatrix();
 
@@ -385,18 +377,29 @@ void SpaceInvaders::draw() {
 
     gl::popModelMatrix();
   }
+}
 
-  for (const auto& shield : shields_) {
+void SpaceInvaders::DrawMissile() {
+  for(const auto& missiles : missiles_) {
     gl::pushModelMatrix();
-    gl::translate(shield->GetPosition().x, shield->GetPosition().y);
-    gl::rotate(shield->GetAngle());
-
-    cinder::Rectf rectangle = Rectf(-45, -25, 45, 25);
-    cinder::gl::draw(shield_texture_, rectangle);
-
+    gl::translate(missiles->GetPosition().x, missiles->GetPosition().y);
+    gl::rotate(missiles->GetAngle());
+    gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
+    missiles->SetLinearVelocity(b2Vec2(0.0f, -30.0f));
     gl::popModelMatrix();
   }
+}
 
+void SpaceInvaders::DrawAnimation() {
+  if (is_destroyed_) {
+    gl::pushModelMatrix();
+    gl::translate(animation_x_, animation_y_);
+
+    cinder::Rectf rectangle = Rectf(-kInvaderSize,-kInvaderSize,
+                                    kInvaderSize, kInvaderSize);
+    cinder::gl::draw(fire_texture_, rectangle);
+    gl::popModelMatrix();
+  }
 }
 
 void SpaceInvaders::DrawScore() {
@@ -407,6 +410,19 @@ void SpaceInvaders::DrawScore() {
   const cinder::vec2 loc = {center.x , 50};
 
   PrintText(text, color, size, loc);
+}
+
+
+void SpaceInvaders::DrawInvaderShot() {
+  if (!invaders_shots_.empty()) {
+    gl::pushModelMatrix();
+    gl::translate(invaders_shots_.back() ->GetPosition().x,
+                  invaders_shots_.back()->GetPosition().y + kInvaderSize);
+    gl::rotate(invaders_shots_.back()->GetAngle());
+    gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
+    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, 25.0f));
+    gl::popModelMatrix();
+  }
 }
 
 void SpaceInvaders::DrawGameOver() {
@@ -445,10 +461,6 @@ void SpaceInvaders::DrawGameOver() {
     ss << player.score;
     PrintText(ss.str(), color, size, {center.x, center.y +(++row)*50});
   }
-}
-
-void SpaceInvaders::mouseDown(MouseEvent event) {
-  //addMissiles(event.getPos());
 }
 
 void SpaceInvaders::keyDown(KeyEvent event) {
