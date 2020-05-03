@@ -39,8 +39,7 @@ SpaceInvaders::SpaceInvaders()
       kInvaderSize{18},
       player_name_{FLAGS_name},
       score_{0},
-      is_start_{true},
-      state_{GameState::kPlaying} {}
+      state_{GameState::kStart} {}
 
 void SpaceInvaders::setup() {
   cinder::gl::enableDepthWrite();
@@ -313,23 +312,24 @@ void SpaceInvaders::draw() {
   cinder::gl::enableAlphaBlending();
   gl::clear();
 
+  if (state_ == GameState::kStart) {
+    AddShield();
+    AddInvader();
+    state_ = GameState::kPlaying;
+  }
+
   if (state_ == GameState::kGameOver) {
     cinder::gl::clear(Color(1, 0, 0));
     DrawGameOver();
     return;
   }
 
+  if (invaders_.empty() && state_ == GameState::kPlaying) {
+    state_ = GameState::kGameOver;
+  }
+
   AddPlayer();
   DrawScore();
-
-  if (invaders_.empty()) {
-    AddInvader();
-  }
-
-  if (is_start_) {
-    AddShield();
-    is_start_ = false;
-  }
 
   const auto time = std::chrono::system_clock::now();
 
@@ -338,7 +338,7 @@ void SpaceInvaders::draw() {
       .count();
   time_shot /= 1000.0;
 
-  if (time_shot >= 2.0) {
+  if (time_shot >= 1.5) {
     AddShot();
     shot_elapsed_ = time;
   }
@@ -359,7 +359,7 @@ void SpaceInvaders::draw() {
                   invaders_shots_.back()->GetPosition().y + kInvaderSize);
     gl::rotate(invaders_shots_.back()->GetAngle());
     gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
-    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, 20.0f));
+    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, 25.0f));
     gl::popModelMatrix();
   }
 
@@ -418,13 +418,19 @@ void SpaceInvaders::DrawGameOver() {
   const cinder::ivec2 size = {500, 50};
   const Color color = Color::black();
 
+  if (score_ == 880) {
+    cinder::gl::clear(Color(0, 1, 0));
+    PrintText("You WIN!!", color, size, center);
+  } else {
+    PrintText("Game Over :(", color, size, center);
+  }
+
   PrintText("Press R to Replay!", color, size, {center.x, 50});
 
   const std::string your_score = "Your Score: " + std::to_string(score_);
   PrintText(your_score, color, size, {center.x, 200});
-
   size_t row = 0;
-  PrintText("Game Over :(", color, size, center);
+
   for (const spaceinvaderslibrary::Player& player : top_players_) {
     std::stringstream ss;
     ss << player.name << " - " << player.score;
@@ -489,8 +495,7 @@ void SpaceInvaders::ResetGame() {
   b2Vec2 gravity(0.0f, 0.0f);
   world_ = new b2World(gravity);
   score_ = 0;
-  is_start_ = true;
-  state_ = GameState::kPlaying;
+  state_ = GameState::kStart;
   top_players_.clear();
   missiles_.clear();
   invaders_.clear();

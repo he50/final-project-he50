@@ -21,6 +21,7 @@ using cinder::audio::VoiceRef;
 namespace spaceinvaders {
 
 enum class GameState {
+  kStart,
   kPlaying,
   kGameOver,
 };
@@ -72,7 +73,6 @@ class SpaceInvaders : public cinder::app::App {
   cinder::audio::VoiceRef fire_voice_;
 
   bool is_destroyed_;
-  bool is_start_;
   int animation_x_;
   int animation_y_;
   size_t score_;
