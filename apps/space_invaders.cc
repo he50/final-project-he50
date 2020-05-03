@@ -171,35 +171,9 @@ void SpaceInvaders::update() {
     for (b2Contact* contact = world_->GetContactList(); contact;
          contact = contact->GetNext()) {
       if (contact->IsTouching()) {
-        if (contact->GetFixtureA()->GetBody()->GetUserData() == "invader" &&
-            contact->GetFixtureB()->GetBody()->GetUserData() == "missile") {
-          world_->DestroyBody(contact->GetFixtureA()->GetBody());
-          world_->DestroyBody(contact->GetFixtureB()->GetBody());
-
-          missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
-                                      contact->GetFixtureB()->GetBody()),
-                          missiles_.end());
-
-          invaders_.erase(std::remove(invaders_.begin(), invaders_.end(),
-                                      contact->GetFixtureA()->GetBody()),
-                          invaders_.end());
-
-          front_invaders_.erase(std::remove(front_invaders_.begin(), front_invaders_.end(),
-                                            contact->GetFixtureA()->GetBody()),
-                                front_invaders_.end());
-
-          score_ += 20;
-          is_destroyed_ = true;
-          animation_x_ = contact->GetFixtureA()->GetBody()->GetPosition().x;
-          animation_y_ = contact->GetFixtureA()->GetBody()->GetPosition().y;
-
-          cinder::audio::SourceFileRef source_file =
-              cinder::audio::load(cinder::app::loadAsset("invaderkilled.wav"));
-          invader_killed_voice_ = cinder::audio::Voice::create(source_file);
-
-          // Start playing audio from the voice:
-          invader_killed_voice_->start();
-        }
+        CheckMissileHitInvader(contact);
+        CheckShieldDestroyed(contact);
+        CheckInvaderShot(contact);
       }
     }
 
@@ -217,6 +191,110 @@ void SpaceInvaders::update() {
   }
 }
 
+void SpaceInvaders::CheckMissileHitInvader(b2Contact* contact) {
+  if (contact->GetFixtureA()->GetBody()->GetUserData() == "invader" &&
+      contact->GetFixtureB()->GetBody()->GetUserData() == "missile") {
+    world_->DestroyBody(contact->GetFixtureA()->GetBody());
+    world_->DestroyBody(contact->GetFixtureB()->GetBody());
+
+    missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
+                                contact->GetFixtureB()->GetBody()),
+                    missiles_.end());
+
+    invaders_.erase(std::remove(invaders_.begin(), invaders_.end(),
+                                contact->GetFixtureA()->GetBody()),
+                    invaders_.end());
+
+    front_invaders_.erase(std::remove(front_invaders_.begin(), front_invaders_.end(),
+                                      contact->GetFixtureA()->GetBody()),
+                          front_invaders_.end());
+
+    score_ += 20;
+    is_destroyed_ = true;
+    animation_x_ = contact->GetFixtureA()->GetBody()->GetPosition().x;
+    animation_y_ = contact->GetFixtureA()->GetBody()->GetPosition().y;
+
+    cinder::audio::SourceFileRef source_file =
+        cinder::audio::load(cinder::app::loadAsset("invaderkilled.wav"));
+    invader_killed_voice_ = cinder::audio::Voice::create(source_file);
+
+    // Start playing audio from the voice:
+    invader_killed_voice_->start();
+  }
+}
+
+void SpaceInvaders::CheckShieldDestroyed(b2Contact* contact) {
+  if (contact->GetFixtureA()->GetBody()->GetUserData() ==
+      "shield" &&
+      contact->GetFixtureB()->GetBody()->GetUserData() ==
+      "missile") {
+    world_->DestroyBody(contact->GetFixtureA()->GetBody());
+    world_->DestroyBody(contact->GetFixtureB()->GetBody());
+
+    missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
+                                contact->GetFixtureB()->GetBody()),
+                    missiles_.end());
+
+    shields_.erase(std::remove(shields_.begin(), shields_.end(),
+                               contact->GetFixtureA()->GetBody()),
+                   shields_.end());
+  } else if (contact->GetFixtureA()->GetBody()->GetUserData() ==
+             "shield" &&
+             contact->GetFixtureB()->GetBody()->GetUserData() ==
+             "shot") {
+    world_->DestroyBody(contact->GetFixtureA()->GetBody());
+    world_->DestroyBody(contact->GetFixtureB()->GetBody());
+
+    invaders_shots_.erase(std::remove(invaders_shots_.begin(), invaders_shots_.end(),
+                                      contact->GetFixtureB()->GetBody()),
+                          invaders_shots_.end());
+
+    shields_.erase(std::remove(shields_.begin(), shields_.end(),
+                               contact->GetFixtureA()->GetBody()),
+                   shields_.end());
+  }
+}
+
+void SpaceInvaders::CheckInvaderShot(b2Contact* contact) {
+  if (contact->GetFixtureA()->GetBody()->GetUserData() ==
+      "player" &&
+      contact->GetFixtureB()->GetBody()->GetUserData() ==
+      "shot") {
+    //world_->DestroyBody(contact->GetFixtureA()->GetBody());
+    //world_->DestroyBody(contact->GetFixtureB()->GetBody());
+    state_ = GameState::kGameOver;
+  } else if (contact->GetFixtureA()->GetBody()->GetUserData() ==
+             "shot" &&
+             contact->GetFixtureB()->GetBody()->GetUserData() ==
+             "missile") {
+    world_->DestroyBody(contact->GetFixtureA()->GetBody());
+    world_->DestroyBody(contact->GetFixtureB()->GetBody());
+
+    invaders_shots_.erase(std::remove(invaders_shots_.begin(), invaders_shots_.end(),
+                                      contact->GetFixtureA()->GetBody()),
+                          invaders_shots_.end());
+
+    missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
+                                contact->GetFixtureB()->GetBody()),
+                    missiles_.end());
+
+  } else if (contact->GetFixtureB()->GetBody()->GetUserData() ==
+             "shot" &&
+             contact->GetFixtureA()->GetBody()->GetUserData() ==
+             "missile") {
+    world_->DestroyBody(contact->GetFixtureA()->GetBody());
+    world_->DestroyBody(contact->GetFixtureB()->GetBody());
+
+    invaders_shots_.erase(std::remove(invaders_shots_.begin(), invaders_shots_.end(),
+                                      contact->GetFixtureB()->GetBody()),
+                          invaders_shots_.end());
+
+    missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
+                                contact->GetFixtureA()->GetBody()),
+                    missiles_.end());
+
+  }
+}
 
 void SpaceInvaders::draw() {
   cinder::gl::enableAlphaBlending();
@@ -245,7 +323,7 @@ void SpaceInvaders::draw() {
     AddShot();
     shot_elapsed_ = time;
   }
-  
+
   gl::color( 0, 1, 0 );
   for(const auto& missiles : missiles_) {
     gl::pushModelMatrix();
@@ -322,7 +400,7 @@ void SpaceInvaders::keyDown(KeyEvent event) {
     }
 
     case KeyEvent::KEY_r: {
-      ResetGame();
+      //ResetGame();
       break;
     }
     case KeyEvent::KEY_SPACE: {

@@ -38,6 +38,9 @@ class SpaceInvaders : public cinder::app::App {
   void AddShield();
   void AddShot();
   void DrawGameOver();
+  void CheckMissileHitInvader(b2Contact* contact);
+  void CheckShieldDestroyed(b2Contact* contact);
+  void CheckInvaderShot(b2Contact* contact);
   void keyDown(cinder::app::KeyEvent) override;
   void DrawScore();
   void ResetGame();
