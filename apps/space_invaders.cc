@@ -165,6 +165,19 @@ void SpaceInvaders::AddShot() {
 }
 
 void SpaceInvaders::update() {
+  if (state_ == GameState::kGameOver) {
+    if (top_players_.empty()) {
+      leaderboard_.
+          AddScoreToLeaderBoard({player_name_, score_});
+      top_players_ = leaderboard_.RetrieveHighScores(3);
+      player_scores_ = leaderboard_.
+          RetrieveHighScores({player_name_, score_}, 3);
+
+      // It is crucial the this vector be populated, given that `kLimit` > 0.
+      assert(!top_players_.empty());
+    }
+    return;
+  }
 
   for (int i = 0; i < 15; ++i) {
     world_->Step(1 / 30.0f, 10, 10);
@@ -299,6 +312,12 @@ void SpaceInvaders::CheckInvaderShot(b2Contact* contact) {
 void SpaceInvaders::draw() {
   cinder::gl::enableAlphaBlending();
   gl::clear();
+
+  if (state_ == GameState::kGameOver) {
+    cinder::gl::clear(Color(1, 0, 0));
+    DrawGameOver();
+    return;
+  }
 
   AddPlayer();
   DrawScore();
