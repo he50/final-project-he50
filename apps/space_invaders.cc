@@ -461,7 +461,7 @@ void SpaceInvaders::keyDown(KeyEvent event) {
     }
 
     case KeyEvent::KEY_r: {
-      //ResetGame();
+      ResetGame();
       break;
     }
     case KeyEvent::KEY_SPACE: {
@@ -480,6 +480,28 @@ void SpaceInvaders::keyDown(KeyEvent event) {
       exit(0);
     }
   }
+}
+
+void SpaceInvaders::ResetGame() {
+  cinder::gl::enableDepthWrite();
+  cinder::gl::enableDepthRead();
+
+  b2Vec2 gravity(0.0f, 0.0f);
+  world_ = new b2World(gravity);
+  score_ = 0;
+  is_start_ = true;
+  state_ = GameState::kPlaying;
+  top_players_.clear();
+  missiles_.clear();
+  invaders_.clear();
+  shields_.clear();
+  front_invaders_.clear();
+  invaders_shots_.clear();
+  is_destroyed_ = false;
+  animation_x_ = 0;
+  animation_y_ = 0;
+  player_y_ = getWindowHeight() - 30;
+  player_x_ = getWindowWidth() / 2;
 }
 
 

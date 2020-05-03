@@ -38,9 +38,20 @@
     - Display score and store in variable
     - Added all voice and animation to game
     - Updated README.md
-    - TODO: figure out shield and missile interaction
-    - TODO: invader missiles and game over screen
-    - TODO: figure out lag and reorganization
+    - ~~TODO: figure out shield and missile interaction~~
+    - ~~TODO: invader missiles and game over screen~~
+    - ~~TODO: figure out lag and reorganization~~
+    
+ - **4/29/20** Collisions
+    - Interacted with shield, player, invader and shot collisions.
+    - TODO: figure out sudden glitch after first round of aliens.
+    
+ - **5/1/20** Game Over screen
+    - DrawGameOver() from snake
+    - Display top 3 scores.
+    - Figured out lag and organization of classes.
+    - TODO: figure out glitch
+ 
     
     
 
