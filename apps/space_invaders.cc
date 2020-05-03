@@ -57,6 +57,14 @@ void SpaceInvaders::setup() {
   fire_texture_ = cinder::gl::Texture2d::create(
       loadImage(loadAsset("fire.png")));
 
+  cinder::audio::SourceFileRef source_file =
+      cinder::audio::load
+          (cinder::app::loadAsset("background_music.mp3"));
+  background_voice_ = cinder::audio::Voice::create(source_file);
+
+  // Start playing audio from the voice:
+  background_voice_->start();
+
 }
 
 template <typename C>
@@ -274,6 +282,12 @@ void SpaceInvaders::CheckInvaderShot(b2Contact* contact) {
       "shot") {
     //world_->DestroyBody(contact->GetFixtureA()->GetBody());
     //world_->DestroyBody(contact->GetFixtureB()->GetBody());
+    cinder::audio::SourceFileRef source_file =
+        cinder::audio::load(cinder::app::loadAsset("explosion.wav"));
+    explosion_voice_ = cinder::audio::Voice::create(source_file);
+
+    // Start playing audio from the voice:
+    explosion_voice_->start();
     state_ = GameState::kGameOver;
   } else if (contact->GetFixtureA()->GetBody()->GetUserData() ==
              "shot" &&
@@ -338,7 +352,7 @@ void SpaceInvaders::draw() {
       .count();
   time_shot /= 1000.0;
 
-  if (time_shot >= 1.5) {
+  if (time_shot >= 1.0) {
     AddShot();
     shot_elapsed_ = time;
   }
@@ -420,7 +434,7 @@ void SpaceInvaders::DrawInvaderShot() {
                   invaders_shots_.back()->GetPosition().y + kInvaderSize);
     gl::rotate(invaders_shots_.back()->GetAngle());
     gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
-    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, 25.0f));
+    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, 30.0f));
     gl::popModelMatrix();
   }
 }

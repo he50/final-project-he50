@@ -16,8 +16,10 @@ class Player {
   Player(const std::string& name, size_t score) : name(name), score(score) {}
   void SetBody(b2World *world, int player_x, int player_y);
   b2Body* GetBody();
+  
   std::string name;
   size_t score;
+ private:
   b2Body* player_body_;
   const float kPlayerSize = 15;
 };

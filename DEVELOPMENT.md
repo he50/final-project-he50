@@ -51,6 +51,11 @@
     - Display top 3 scores.
     - Figured out lag and organization of classes.
     - TODO: figure out glitch
+    
+ - **5/3/20** Refactoring
+    - Broke up draw() and update() into separate functions.
+    - Start testing small functions.
+    - TODO: figure out glitch = only in the middle game resets
  
     
     

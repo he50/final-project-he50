@@ -75,6 +75,8 @@ class SpaceInvaders : public cinder::app::App {
 
   cinder::audio::VoiceRef invader_killed_voice_;
   cinder::audio::VoiceRef fire_voice_;
+  cinder::audio::VoiceRef background_voice_;
+  cinder::audio::VoiceRef explosion_voice_;
 
   bool is_destroyed_;
   int animation_x_;
