@@ -63,6 +63,14 @@
     - Start testing small functions.
     - TODO: figure out how to test more functions
     
+ - **5/5/20** Tried Restructuring
+    - Tried to create engine class that stored update logic or draw logic.
+    - Came to conclusion that it wasn't good practice to bring states back and 
+    forth between "my_app" and spaceinvaderslibrary.
+    - Finished Documenting
+    - Added Proposal.
+    - Updated Readme.md
+    
  
     
     

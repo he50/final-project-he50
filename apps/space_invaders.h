@@ -217,6 +217,7 @@ class SpaceInvaders : public cinder::app::App {
   std::string player_name_;
 };
 
-}  // namespace myapp
+}  // namespace spaceinvaders
 
 #endif  // FINALPROJECT_APPS_MYAPP_H_
+

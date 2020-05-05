@@ -68,8 +68,8 @@ void SpaceInvaders::setup() {
 }
 
 template <typename C>
-void PrintText(const std::string& text, const C& color, 
-    const cinder::ivec2& size, const cinder::vec2& loc) {
+void PrintText(const std::string& text, const C& color,
+               const cinder::ivec2& size, const cinder::vec2& loc) {
   cinder::gl::color(color);
 
   auto box = TextBox()
@@ -197,8 +197,8 @@ void SpaceInvaders::update() {
 
     const auto time = std::chrono::system_clock::now();
     double time_fire = std::chrono::duration_cast<std::chrono::milliseconds>(
-                           time - animation_time_elapsed_)
-                           .count();
+        time - animation_time_elapsed_)
+        .count();
     time_fire /= 1000.0;
     if (time_fire >= 1.0) {
       is_destroyed_ = false;
@@ -252,7 +252,7 @@ void SpaceInvaders::CheckShieldDestroyed(b2Contact* contact) {
 
     missiles_.erase(std::remove(missiles_.begin(),
         missiles_.end(), contact->GetFixtureB()->GetBody()),
-            missiles_.end());
+                    missiles_.end());
     shields_.erase(std::remove(shields_.begin(), shields_.end(),
                                contact->GetFixtureA()->GetBody()),
                    shields_.end());
@@ -294,7 +294,7 @@ void SpaceInvaders::CheckInvaderShot(b2Contact* contact) {
 
     invaders_shots_.erase(std::remove(invaders_shots_.begin(),
         invaders_shots_.end(), contact->GetFixtureA()->GetBody()),
-                          invaders_shots_.end());
+            invaders_shots_.end());
     missiles_.erase(std::remove(missiles_.begin(),
         missiles_.end(), contact->GetFixtureB()->GetBody()),
                     missiles_.end());
@@ -396,6 +396,20 @@ void SpaceInvaders::DrawMissile() {
   }
 }
 
+void SpaceInvaders::DrawInvaderShot() {
+  if (!invaders_shots_.empty()) {
+    gl::pushModelMatrix();
+    gl::translate(invaders_shots_.back() ->GetPosition().x,
+                  invaders_shots_.back()->GetPosition().y + kInvaderSize);
+    gl::rotate(invaders_shots_.back()->GetAngle());
+
+    gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
+    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, kVelocity));
+
+    gl::popModelMatrix();
+  }
+}
+
 void SpaceInvaders::DrawAnimation() {
   if (is_destroyed_) {
     gl::pushModelMatrix();
@@ -419,20 +433,6 @@ void SpaceInvaders::DrawScore() {
   PrintText(text, color, size, loc);
 }
 
-
-void SpaceInvaders::DrawInvaderShot() {
-  if (!invaders_shots_.empty()) {
-    gl::pushModelMatrix();
-    gl::translate(invaders_shots_.back() ->GetPosition().x,
-                  invaders_shots_.back()->GetPosition().y + kInvaderSize);
-    gl::rotate(invaders_shots_.back()->GetAngle());
-
-    gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
-    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, kVelocity));
-
-    gl::popModelMatrix();
-  }
-}
 
 void SpaceInvaders::DrawGameOver() {
   // Lazily print.
@@ -531,4 +531,5 @@ void SpaceInvaders::ResetGame() {
 
 
 }  // namespace spaceinvaders
+
 
