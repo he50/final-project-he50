@@ -55,7 +55,14 @@
  - **5/3/20** Refactoring
     - Broke up draw() and update() into separate functions.
     - Start testing small functions.
+    - Added sound effects.
     - TODO: figure out glitch = only in the middle game resets
+    
+ - **5/4/20** Testing
+    - Fixed Background music
+    - Start testing small functions.
+    - TODO: figure out how to test more functions
+    
  
     
     

@@ -209,6 +209,11 @@ void SpaceInvaders::update() {
       animation_time_elapsed_ = time;
     }
   }
+
+  //Restart background music if stopped playing.
+  if (!background_voice_->isPlaying()) {
+    background_voice_->start();
+  }
 }
 
 void SpaceInvaders::CheckMissileHitInvader(b2Contact* contact) {
