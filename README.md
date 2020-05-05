@@ -3,7 +3,7 @@
 **Author**: Jonathan He - [`he50@illinois.edu`](mailto:he50@illinois.edu)
 # Space Invaders
 
-![](https://imgur.com/44t9Jqa)
+![](assets/space_invaders.png)
 
 
 ## Dependencies
