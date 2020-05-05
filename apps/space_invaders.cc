@@ -37,6 +37,7 @@ SpaceInvaders::SpaceInvaders()
       kInvaderCols{11},
       kWaitTime{1.0},
       kLimit{3},
+      kMaxScore{880},
       player_name_{FLAGS_name},
       score_{0},
       state_{GameState::kStart} {}
@@ -126,8 +127,8 @@ void SpaceInvaders::AddPlayer() {
 }
 
 void SpaceInvaders::AddInvader() {
-  for (int j = 0; j < kInvaderRows; j++) {
-    for (int i = 0; i < kInvaderCols; i++) {
+  for (size_t j = 0; j < kInvaderRows; j++) {
+    for (size_t i = 0; i < kInvaderCols; i++) {
       spaceinvaderslibrary::Invader invader = spaceinvaderslibrary::Invader
           (world_, i * 65 + 70, j * 75 + 150);
 
@@ -141,7 +142,7 @@ void SpaceInvaders::AddInvader() {
 }
 
 void SpaceInvaders::AddShield() {
-  for (int i = 0; i < kInvaderRows; i++) {
+  for (size_t i = 0; i < kInvaderRows; i++) {
     spaceinvaderslibrary::Shield shield = spaceinvaderslibrary::Shield
         (world_, i * 200 + 100,getWindowHeight() - 120);
 
@@ -151,7 +152,7 @@ void SpaceInvaders::AddShield() {
 
 void SpaceInvaders::AddShot() {
   if (front_invaders_.empty()) return;
-  int random_invader = rand() % front_invaders_.size();
+  size_t random_invader = rand() % front_invaders_.size();
 
   b2BodyDef bodyDef;
   bodyDef.type = b2_dynamicBody;
@@ -188,7 +189,7 @@ void SpaceInvaders::update() {
     return;
   }
 
-  for (int i = 0; i < 15; ++i) {
+  for (size_t i = 0; i < 15; ++i) {
     world_->Step(1 / 30.0f, 10, 10);
     for (b2Contact* contact = world_->GetContactList(); contact;
          contact = contact->GetNext()) {
@@ -221,7 +222,6 @@ void SpaceInvaders::RemoveBody(std::vector<b2Body*> &body_vector,
   body_vector.erase(std::remove(body_vector.begin(),
                                 body_vector.end(), contact_body),
                     body_vector.end());
-
 }
 
 void SpaceInvaders::CheckMissileHitInvader(b2Contact* contact) {
@@ -243,7 +243,6 @@ void SpaceInvaders::CheckMissileHitInvader(b2Contact* contact) {
         cinder::audio::load(
             cinder::app::loadAsset("invaderkilled.wav"));
     invader_killed_voice_ = cinder::audio::Voice::create(invader_file);
-
     // Start playing audio from the voice:
     invader_killed_voice_->start();
   }
@@ -351,7 +350,7 @@ void SpaceInvaders::DrawShield() {
     cinder::gl::translate(shield->GetPosition().x, shield->GetPosition().y);
     cinder::gl::rotate(shield->GetAngle());
 
-    cinder::Rectf rectangle = cinder::Rectf(-45, -25, 45, 25);
+    cinder::Rectf rectangle = cinder::Rectf(-45,-25,45,25);
     cinder::gl::draw(shield_texture_, rectangle);
 
     cinder::gl::popModelMatrix();
@@ -422,7 +421,6 @@ void SpaceInvaders::DrawScore() {
   PrintText(text, color, size, loc);
 }
 
-
 void SpaceInvaders::DrawGameOver() {
   // Lazily print.
   if (top_players_.empty()) return;
@@ -432,7 +430,7 @@ void SpaceInvaders::DrawGameOver() {
   const cinder::ivec2 size = {500, 50};
   const cinder::Color color = cinder::Color::black();
 
-  if (score_ == 880) {
+  if (score_ == kMaxScore) {
     cinder::gl::clear(cinder::Color(0, 1, 0));
     PrintText("You WIN!!", color, size, center);
   } else {
@@ -448,15 +446,6 @@ void SpaceInvaders::DrawGameOver() {
   for (const spaceinvaderslibrary::Player& player : top_players_) {
     std::stringstream ss;
     ss << player.name << " - " << player.score;
-    PrintText(ss.str(), color, size, {center.x, center.y +(++row)*50});
-  }
-
-  std::stringstream ss;
-  ss << "Current Player High Scores: ";
-  PrintText(ss.str(), color, size, {center.x, center.y +(++row)*50});
-  for (const spaceinvaderslibrary::Player& player : player_scores_) {
-    std::stringstream ss;
-    ss << player.score;
     PrintText(ss.str(), color, size, {center.x, center.y +(++row)*50});
   }
 }

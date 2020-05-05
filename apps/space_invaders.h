@@ -221,6 +221,7 @@ class SpaceInvaders : public cinder::app::App {
   const size_t kInvaderCols;
   const size_t kLimit;
   const double kWaitTime;
+  const size_t kMaxScore;
 
   /** GameState variable for certain functions. **/
   GameState state_;
