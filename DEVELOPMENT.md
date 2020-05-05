@@ -69,7 +69,7 @@
     forth between "my_app" and spaceinvaderslibrary.
     - Finished Documenting
     - Added Proposal.
-    - Updated Readme.md
+    - Updated README.md
     
  
     
