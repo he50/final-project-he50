@@ -137,6 +137,13 @@ class SpaceInvaders : public cinder::app::App {
   void CheckInvaderShot(b2Contact* contact);
 
   /**
+   * Removes body from vector so it wouldn't be drawn in next draw() call.
+   * @param body_vector reference of b2Body vector.
+   * @param contact_body the body to be removed from the vector.
+   */
+  void RemoveBody(std::vector<b2Body*> &body_vector, b2Body* contact_body);
+
+  /**
    * Key function that gets called for a given key press.
    * R - resets the game
    * ESC - quits the game
@@ -160,6 +167,7 @@ class SpaceInvaders : public cinder::app::App {
  private:
   /** Leaderboard object from leaderboard class. **/
   spaceinvaderslibrary::LeaderBoard leaderboard_;
+
   /** Vector of Players for score tracking. **/
   std::vector<spaceinvaderslibrary::Player> top_players_;
   std::vector<spaceinvaderslibrary::Player> player_scores_;
@@ -209,6 +217,10 @@ class SpaceInvaders : public cinder::app::App {
   const float kPlayerSize;
   const float kInvaderSize;
   const float kVelocity;
+  const size_t kInvaderRows;
+  const size_t kInvaderCols;
+  const size_t kLimit;
+  const double kWaitTime;
 
   /** GameState variable for certain functions. **/
   GameState state_;

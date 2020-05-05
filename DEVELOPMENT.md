@@ -44,13 +44,13 @@
     
  - **4/29/20** Collisions
     - Interacted with shield, player, invader and shot collisions.
-    - TODO: figure out sudden glitch after first round of aliens.
+    - ~~TODO: figure out sudden glitch after first round of aliens.~~
     
  - **5/1/20** Game Over screen
     - DrawGameOver() from snake
     - Display top 3 scores.
     - Figured out lag and organization of classes.
-    - TODO: figure out glitch
+    - ~~TODO: figure out glitch~~
     
  - **5/3/20** Refactoring
     - Broke up draw() and update() into separate functions.
@@ -67,6 +67,7 @@
     - Tried to create engine class that stored update logic or draw logic.
     - Came to conclusion that it wasn't good practice to bring states back and 
     forth between "my_app" and spaceinvaderslibrary.
+    - Refactored Check____() functions to call a RemoveBody function.
     - Finished Documenting
     - Added Proposal.
     - Updated README.md

@@ -13,13 +13,13 @@ using cinder::app::App;
 using cinder::app::RendererGl;
 using std::string;
 using std::vector;
-DEFINE_string(name, "CS126SP20", "the name of the player");
+DEFINE_string(name, "Player", "the name of the player");
 
 namespace spaceinvaders {
 
 void ParseArgs(vector<std::string>* args) {
   gflags::SetUsageMessage(
-      "Play a game of Snake. Pass --helpshort for options.");
+      "Play a game of Space Invaders. Pass --helpshort for options.");
   int argc = static_cast<int>(args->size());
 
   vector<char*> argvs;
