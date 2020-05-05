@@ -158,41 +158,62 @@ class SpaceInvaders : public cinder::app::App {
   void ResetGame();
 
  private:
+  /** Leaderboard object from leaderboard class. **/
   spaceinvaderslibrary::LeaderBoard leaderboard_;
+  /** Vector of Players for score tracking. **/
   std::vector<spaceinvaderslibrary::Player> top_players_;
   std::vector<spaceinvaderslibrary::Player> player_scores_;
 
+  /** X and Y Coordinates for the player's position.**/
   int player_x_;
   int player_y_;
+
+  /** World representing the Box2D world. **/
   b2World* world_;
 
+  /** The b2Body vectors for drawing. **/
   std::vector<b2Body*> missiles_;
   std::vector<b2Body*> invaders_;
   std::vector<b2Body*> shields_;
   std::vector<b2Body*> front_invaders_;
   std::vector<b2Body*> invaders_shots_;
 
+  /** Textures for images. **/
   cinder::gl::Texture2dRef player_texture_;
   cinder::gl::Texture2dRef invader_texture_;
   cinder::gl::Texture2dRef shield_texture_;
   cinder::gl::Texture2dRef fire_texture_;
 
+  /** Time variables for animation and random invader shots. **/
   std::chrono::time_point<std::chrono::system_clock> animation_time_elapsed_;
   std::chrono::time_point<std::chrono::system_clock> shot_elapsed_;
 
+  /** VoiceRef objects for sound. **/
   cinder::audio::VoiceRef invader_killed_voice_;
   cinder::audio::VoiceRef fire_voice_;
   cinder::audio::VoiceRef background_voice_;
   cinder::audio::VoiceRef explosion_voice_;
 
+  /** Boolean to represent whether an invader is destroyed. For animation. **/
   bool is_destroyed_;
+
+  /** X and Y coordinates for animation. **/
   int animation_x_;
   int animation_y_;
+
+  /** Score variable: 20 points per invader taken down. **/
   size_t score_;
+
+  /** Constants. **/
   const float kRadius;
   const float kPlayerSize;
   const float kInvaderSize;
+  const float kVelocity;
+
+  /** GameState variable for certain functions. **/
   GameState state_;
+
+  /** Player name string value from gflags. **/
   std::string player_name_;
 };
 

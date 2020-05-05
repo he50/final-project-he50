@@ -37,6 +37,7 @@ SpaceInvaders::SpaceInvaders()
       kPlayerSize{15},
       kRadius{3},
       kInvaderSize{18},
+      kVelocity{30},
       player_name_{FLAGS_name},
       score_{0},
       state_{GameState::kStart} {}
@@ -59,12 +60,11 @@ void SpaceInvaders::setup() {
 
   cinder::audio::SourceFileRef source_file =
       cinder::audio::load
-          (cinder::app::loadAsset("background_music.mp3"));
+      (cinder::app::loadAsset("background_music.mp3"));
   background_voice_ = cinder::audio::Voice::create(source_file);
 
   // Start playing audio from the voice:
   background_voice_->start();
-
 }
 
 template <typename C>
@@ -115,13 +115,10 @@ void SpaceInvaders::AddPlayer() {
   gl::translate(player.GetBody()->GetPosition().x,
                 player.GetBody()->GetPosition().y);
   gl::rotate(player.GetBody() ->GetAngle());
-
   cinder::Rectf rectangle = Rectf(-kPlayerSize, -kPlayerSize,
                                   kPlayerSize, kPlayerSize);
   cinder::gl::draw(player_texture_, rectangle);
-
   gl::popModelMatrix();
-
 }
 
 void SpaceInvaders::AddInvader() {
@@ -129,6 +126,7 @@ void SpaceInvaders::AddInvader() {
     for (int i = 0; i < 11; i++) {
       spaceinvaderslibrary::Invader invader = spaceinvaderslibrary::Invader
           (world_, i * 65 + 70, j * 75 + 150);
+
       if (j == 3) {
         front_invaders_.push_back(invader.GetBody());
       }
@@ -154,7 +152,7 @@ void SpaceInvaders::AddShot() {
   b2BodyDef bodyDef;
   bodyDef.type = b2_dynamicBody;
   bodyDef.position.Set(front_invaders_.at(random_invader)->GetPosition().x,
-                       front_invaders_.at(random_invader)->GetPosition().y + kInvaderSize);
+      front_invaders_.at(random_invader)->GetPosition().y + kInvaderSize);
 
   b2Body* body = world_->CreateBody(&bodyDef);
 
@@ -198,12 +196,10 @@ void SpaceInvaders::update() {
     }
 
     const auto time = std::chrono::system_clock::now();
-
     double time_fire = std::chrono::duration_cast<std::chrono::milliseconds>(
                            time - animation_time_elapsed_)
                            .count();
     time_fire /= 1000.0;
-
     if (time_fire >= 1.0) {
       is_destroyed_ = false;
       animation_time_elapsed_ = time;
@@ -222,16 +218,14 @@ void SpaceInvaders::CheckMissileHitInvader(b2Contact* contact) {
     world_->DestroyBody(contact->GetFixtureA()->GetBody());
     world_->DestroyBody(contact->GetFixtureB()->GetBody());
 
-    missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
-                                contact->GetFixtureB()->GetBody()),
+    missiles_.erase(std::remove(missiles_.begin(),
+        missiles_.end(), contact->GetFixtureB()->GetBody()),
                     missiles_.end());
-
-    invaders_.erase(std::remove(invaders_.begin(), invaders_.end(),
-                                contact->GetFixtureA()->GetBody()),
+    invaders_.erase(std::remove(invaders_.begin(),
+        invaders_.end(), contact->GetFixtureA()->GetBody()),
                     invaders_.end());
-
-    front_invaders_.erase(std::remove(front_invaders_.begin(), front_invaders_.end(),
-                                      contact->GetFixtureA()->GetBody()),
+    front_invaders_.erase(std::remove(front_invaders_.begin(),
+        front_invaders_.end(), contact->GetFixtureA()->GetBody()),
                           front_invaders_.end());
 
     score_ += 20;
@@ -240,9 +234,9 @@ void SpaceInvaders::CheckMissileHitInvader(b2Contact* contact) {
     animation_y_ = contact->GetFixtureA()->GetBody()->GetPosition().y;
 
     cinder::audio::SourceFileRef source_file =
-        cinder::audio::load(cinder::app::loadAsset("invaderkilled.wav"));
+        cinder::audio::load(
+            cinder::app::loadAsset("invaderkilled.wav"));
     invader_killed_voice_ = cinder::audio::Voice::create(source_file);
-
     // Start playing audio from the voice:
     invader_killed_voice_->start();
   }
@@ -256,10 +250,9 @@ void SpaceInvaders::CheckShieldDestroyed(b2Contact* contact) {
     world_->DestroyBody(contact->GetFixtureA()->GetBody());
     world_->DestroyBody(contact->GetFixtureB()->GetBody());
 
-    missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
-                                contact->GetFixtureB()->GetBody()),
-                    missiles_.end());
-
+    missiles_.erase(std::remove(missiles_.begin(),
+        missiles_.end(), contact->GetFixtureB()->GetBody()),
+            missiles_.end());
     shields_.erase(std::remove(shields_.begin(), shields_.end(),
                                contact->GetFixtureA()->GetBody()),
                    shields_.end());
@@ -270,13 +263,11 @@ void SpaceInvaders::CheckShieldDestroyed(b2Contact* contact) {
     world_->DestroyBody(contact->GetFixtureA()->GetBody());
     world_->DestroyBody(contact->GetFixtureB()->GetBody());
 
-    invaders_shots_.erase(std::remove(invaders_shots_.begin(), invaders_shots_.end(),
-                                      contact->GetFixtureB()->GetBody()),
+    invaders_shots_.erase(std::remove(invaders_shots_.begin(),
+        invaders_shots_.end(), contact->GetFixtureB()->GetBody()),
                           invaders_shots_.end());
-
     shields_.erase(std::remove(shields_.begin(), shields_.end(),
-                               contact->GetFixtureA()->GetBody()),
-                   shields_.end());
+        contact->GetFixtureA()->GetBody()),shields_.end());
   }
 }
 
@@ -285,15 +276,15 @@ void SpaceInvaders::CheckInvaderShot(b2Contact* contact) {
       "player" &&
       contact->GetFixtureB()->GetBody()->GetUserData() ==
       "shot") {
-    //world_->DestroyBody(contact->GetFixtureA()->GetBody());
-    //world_->DestroyBody(contact->GetFixtureB()->GetBody());
     cinder::audio::SourceFileRef source_file =
-        cinder::audio::load(cinder::app::loadAsset("explosion.wav"));
+        cinder::audio::load(
+            cinder::app::loadAsset("explosion.wav"));
     explosion_voice_ = cinder::audio::Voice::create(source_file);
-
     // Start playing audio from the voice:
     explosion_voice_->start();
+
     state_ = GameState::kGameOver;
+
   } else if (contact->GetFixtureA()->GetBody()->GetUserData() ==
              "shot" &&
              contact->GetFixtureB()->GetBody()->GetUserData() ==
@@ -301,12 +292,11 @@ void SpaceInvaders::CheckInvaderShot(b2Contact* contact) {
     world_->DestroyBody(contact->GetFixtureA()->GetBody());
     world_->DestroyBody(contact->GetFixtureB()->GetBody());
 
-    invaders_shots_.erase(std::remove(invaders_shots_.begin(), invaders_shots_.end(),
-                                      contact->GetFixtureA()->GetBody()),
+    invaders_shots_.erase(std::remove(invaders_shots_.begin(),
+        invaders_shots_.end(), contact->GetFixtureA()->GetBody()),
                           invaders_shots_.end());
-
-    missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
-                                contact->GetFixtureB()->GetBody()),
+    missiles_.erase(std::remove(missiles_.begin(),
+        missiles_.end(), contact->GetFixtureB()->GetBody()),
                     missiles_.end());
 
   } else if (contact->GetFixtureB()->GetBody()->GetUserData() ==
@@ -316,14 +306,12 @@ void SpaceInvaders::CheckInvaderShot(b2Contact* contact) {
     world_->DestroyBody(contact->GetFixtureA()->GetBody());
     world_->DestroyBody(contact->GetFixtureB()->GetBody());
 
-    invaders_shots_.erase(std::remove(invaders_shots_.begin(), invaders_shots_.end(),
-                                      contact->GetFixtureB()->GetBody()),
+    invaders_shots_.erase(std::remove(invaders_shots_.begin(),
+        invaders_shots_.end(), contact->GetFixtureB()->GetBody()),
                           invaders_shots_.end());
-
-    missiles_.erase(std::remove(missiles_.begin(), missiles_.end(),
-                                contact->GetFixtureA()->GetBody()),
+    missiles_.erase(std::remove(missiles_.begin(),
+        missiles_.end(), contact->GetFixtureA()->GetBody()),
                     missiles_.end());
-
   }
 }
 
@@ -351,12 +339,10 @@ void SpaceInvaders::draw() {
   DrawScore();
 
   const auto time = std::chrono::system_clock::now();
-
   double time_shot = std::chrono::duration_cast<std::chrono::milliseconds>(
       time - shot_elapsed_)
       .count();
   time_shot /= 1000.0;
-
   if (time_shot >= 1.0) {
     AddShot();
     shot_elapsed_ = time;
@@ -386,7 +372,6 @@ void SpaceInvaders::DrawShield() {
 void SpaceInvaders::DrawInvader() {
   for (const auto& invader : invaders_) {
     gl::pushModelMatrix();
-
     gl::translate(invader->GetPosition().x, invader ->GetPosition().y);
     gl::rotate(invader->GetAngle());
 
@@ -403,8 +388,10 @@ void SpaceInvaders::DrawMissile() {
     gl::pushModelMatrix();
     gl::translate(missiles->GetPosition().x, missiles->GetPosition().y);
     gl::rotate(missiles->GetAngle());
+
     gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
-    missiles->SetLinearVelocity(b2Vec2(0.0f, -30.0f));
+    missiles->SetLinearVelocity(b2Vec2(0.0f, -kVelocity));
+
     gl::popModelMatrix();
   }
 }
@@ -417,6 +404,7 @@ void SpaceInvaders::DrawAnimation() {
     cinder::Rectf rectangle = Rectf(-kInvaderSize,-kInvaderSize,
                                     kInvaderSize, kInvaderSize);
     cinder::gl::draw(fire_texture_, rectangle);
+
     gl::popModelMatrix();
   }
 }
@@ -438,8 +426,10 @@ void SpaceInvaders::DrawInvaderShot() {
     gl::translate(invaders_shots_.back() ->GetPosition().x,
                   invaders_shots_.back()->GetPosition().y + kInvaderSize);
     gl::rotate(invaders_shots_.back()->GetAngle());
+
     gl::drawSolidCircle(cinder::vec2(0, 0), kRadius);
-    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, 30.0f));
+    invaders_shots_.back()->SetLinearVelocity(b2Vec2(0.0f, kVelocity));
+
     gl::popModelMatrix();
   }
 }
@@ -496,7 +486,6 @@ void SpaceInvaders::keyDown(KeyEvent event) {
       }
       break;
     }
-
     case KeyEvent::KEY_r: {
       ResetGame();
       break;
@@ -508,7 +497,6 @@ void SpaceInvaders::keyDown(KeyEvent event) {
           cinder::audio::load
               (cinder::app::loadAsset("shoot.wav"));
       fire_voice_ = cinder::audio::Voice::create(source_file);
-
       // Start playing audio from the voice:
       fire_voice_->start();
       break;
